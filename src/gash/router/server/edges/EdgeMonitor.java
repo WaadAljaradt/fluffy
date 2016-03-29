@@ -36,7 +36,7 @@ public class EdgeMonitor implements EdgeListener, Runnable {
 
 	private EdgeList outboundEdges;
 	private EdgeList inboundEdges;
-	private long dt = 2000;
+	private long dt = 5000;
 	private ServerState state;
 	private boolean forever = true;
 
@@ -95,7 +95,8 @@ public class EdgeMonitor implements EdgeListener, Runnable {
 		while (forever) {
 			try {
 				for (EdgeInfo ei : this.outboundEdges.map.values()) {
-					if (ei.isActive() && ei.getChannel() != null) {
+					if (ei.isActive() && ei.getChannel() != null && ei.getChannel().isOpen()) {
+//						System.out.print("open "+ei.getChannel().isOpen()+" writable "+ei.getChannel().isWritable());
 						WorkMessage wm = createHB(ei);
 						ei.getChannel().writeAndFlush(wm);
 					} else {
