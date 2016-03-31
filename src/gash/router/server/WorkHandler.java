@@ -66,6 +66,10 @@ public class WorkHandler extends SimpleChannelInboundHandler<WorkMessage> {
 			if (msg.hasBeat()) {
 				Heartbeat hb = msg.getBeat();
 				logger.debug("heartbeat from " + msg.getHeader().getNodeId());
+
+				// check leader state
+                ElectionHandler.getInstance().checkCurrentState();
+
 			} else if (msg.hasPing()) {
 				logger.info("ping from " + msg.getHeader().getNodeId());
 				boolean p = msg.getPing();
@@ -80,7 +84,9 @@ public class WorkHandler extends SimpleChannelInboundHandler<WorkMessage> {
 				Task t = msg.getTask();
 			} else if (msg.hasState()) {
 				WorkState s = msg.getState();
-			}
+			} else if (msg.hasLeader()) {
+                System.out.print("inquiry for leader");
+            }
 		} catch (Exception e) {
 			// TODO add logging
 			Failure.Builder eb = Failure.newBuilder();

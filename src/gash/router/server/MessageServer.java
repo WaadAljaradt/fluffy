@@ -21,6 +21,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.HashMap;
 
+import gash.router.server.edges.EdgeInfo;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,6 +36,7 @@ import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import pipe.election.Election;
 
 public class MessageServer {
 	protected static Logger logger = LoggerFactory.getLogger("server");
@@ -81,6 +83,11 @@ public class MessageServer {
 			} else
 				comm2.run();
 		}
+
+		LeaderElection election = new LeaderElection(comm);
+
+		Thread electionThread = new Thread(election);
+		electionThread.start();
 	}
 
 	/**
@@ -124,7 +131,7 @@ public class MessageServer {
 	/**
 	 * initialize netty communication
 	 * 
-	 * @param port
+	 * param port
 	 *            The port to listen to
 	 */
 	private static class StartCommandCommunication implements Runnable {
@@ -179,11 +186,12 @@ public class MessageServer {
 	/**
 	 * initialize netty communication
 	 * 
-	 * @param port
+	 * param port
 	 *            The port to listen to
 	 */
 	private static class StartWorkCommunication implements Runnable {
 		ServerState state;
+		EdgeMonitor emon;
 
 		public StartWorkCommunication(RoutingConf conf) {
 			if (conf == null)
@@ -195,9 +203,14 @@ public class MessageServer {
 			TaskList tasks = new TaskList(new NoOpBalancer());
 			state.setTasks(tasks);
 
-			EdgeMonitor emon = new EdgeMonitor(state);
+			emon = new EdgeMonitor(state);
 			Thread t = new Thread(emon);
 			t.start();
+		}
+
+		public EdgeMonitor getEdgeMonitor()
+		{
+			return emon;
 		}
 
 		public void run() {
@@ -243,6 +256,54 @@ public class MessageServer {
 				EdgeMonitor emon = state.getEmon();
 				if (emon != null)
 					emon.shutdown();
+			}
+		}
+	}
+
+	/**
+	 * Create a thread for Leader Election
+	 */
+	public class LeaderElection implements Runnable  {
+
+		private boolean forever = true;
+		private long dt = 15000;
+
+		StartWorkCommunication workComm;
+
+		public LeaderElection(StartWorkCommunication workComm) {
+			this.workComm = workComm;
+		}
+
+
+		@Override
+		public void run() {
+			while(forever)
+			{
+				try {
+
+					int activeCount = 0;
+
+					for (EdgeInfo ei : workComm.getEdgeMonitor().getOutboundEdges().getMap().values())
+					{
+						if (ei.isActive() && ei.getChannel() != null && ei.getChannel().isOpen()) {
+							activeCount++;
+						}
+					}
+
+					if(activeCount > 1)
+					{
+						for (EdgeInfo ei : workComm.getEdgeMonitor().getOutboundEdges().getMap().values())
+						{
+							Election.LeaderStatus.Builder b = Election.LeaderStatus.newBuilder();
+							b.setState(Election.LeaderStatus.LeaderState.LEADERUNKNOWN);
+
+						}
+					}
+
+					Thread.sleep(dt);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			}
 		}
 	}

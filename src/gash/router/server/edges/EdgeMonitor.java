@@ -15,6 +15,9 @@
  */
 package gash.router.server.edges;
 
+import gash.router.server.EdgeCloseListener;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,9 +30,13 @@ import io.netty.channel.ChannelOption;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import pipe.common.Common.Header;
+import pipe.work.Work;
 import pipe.work.Work.Heartbeat;
 import pipe.work.Work.WorkMessage;
 import pipe.work.Work.WorkState;
+
+import java.net.ConnectException;
+import java.util.HashMap;
 
 public class EdgeMonitor implements EdgeListener, Runnable {
 	protected static Logger logger = LoggerFactory.getLogger("edge monitor");
@@ -39,6 +46,8 @@ public class EdgeMonitor implements EdgeListener, Runnable {
 	private long dt = 5000;
 	private ServerState state;
 	private boolean forever = true;
+
+    public static HashMap<Integer, EdgeInfo> activeConnections = new HashMap<>();
 
 	public EdgeMonitor(ServerState state) {
 		if (state == null)
@@ -97,17 +106,30 @@ public class EdgeMonitor implements EdgeListener, Runnable {
 				for (EdgeInfo ei : this.outboundEdges.map.values()) {
 					if (ei.isActive() && ei.getChannel() != null && ei.getChannel().isOpen()) {
 //						System.out.print("open "+ei.getChannel().isOpen()+" writable "+ei.getChannel().isWritable());
-						WorkMessage wm = createHB(ei);
-						ei.getChannel().writeAndFlush(wm);
+                            if(ei.getChannel().isOpen()) {
+                                WorkMessage wm = createHB(ei);
+                                ei.getChannel().writeAndFlush(wm);
+                            }
+                            else
+                            {
+                                activeConnections.remove(ei.getRef());
+                                ei.setActive(false);
+                            }
 					} else {
 						// TODO create a client to the node
-						Channel channel = connectToChannel(ei.getHost(), ei.getPort());
+						Channel channel = connectToChannel(ei);
+
 						ei.setChannel(channel);
-						System.out.println("Connected to Channel with host " + ei.getHost());
+
 						ei.setActive(true);
 						if (channel == null) {
 							logger.info("trying to connect to node " + ei.getRef());
 						}
+                        else
+                        {
+                            activeConnections.put(ei.getRef(), ei);
+                            System.out.println("Connected to Channel with host " + ei.getHost());
+                        }
 						//logger.info("trying to connect to node " + ei.getRef());
 					}
 				}
@@ -120,10 +142,10 @@ public class EdgeMonitor implements EdgeListener, Runnable {
 		}
 	}
 	
-	private Channel connectToChannel(String host, int port) {
+	private Channel connectToChannel(EdgeInfo ei) {
 		Bootstrap b = new Bootstrap();
 		NioEventLoopGroup nioEventLoopGroup = new NioEventLoopGroup();
-		WorkInit workInit = new WorkInit(null, false);
+		WorkInit workInit = new WorkInit(this.state, false);
 
 		try {
 			b.group(nioEventLoopGroup).channel(NioSocketChannel.class).handler(workInit);
@@ -140,14 +162,33 @@ public class EdgeMonitor implements EdgeListener, Runnable {
 		Channel retChannel = null;
 		
 		try{
-			retChannel = b.connect(host, port).syncUninterruptibly().channel();
+			retChannel = b.connect(ei.getHost(), ei.getPort()).syncUninterruptibly().channel();
+
+            EdgeCloseListener edgeCloseListener = new EdgeCloseListener(ei);
+            retChannel.closeFuture().addListener(edgeCloseListener);
 		}catch(Exception e){
-			e.printStackTrace();
+
+            if(e instanceof ConnectException)
+                System.out.println("Unable to connect");
+            else
+			    e.printStackTrace();
 		}
 		
 		return retChannel;
 
 	}
+
+    public static void broadcastMessage(Work.WorkMessage.Builder message)
+    {
+        if(message == null)
+            return;
+
+        for(EdgeInfo ei : activeConnections.values())
+        {
+            if(ei.getChannel().isOpen())
+                ei.getChannel().writeAndFlush(message);
+        }
+    }
 
 	@Override
 	public synchronized void onAdd(EdgeInfo ei) {
@@ -158,4 +199,9 @@ public class EdgeMonitor implements EdgeListener, Runnable {
 	public synchronized void onRemove(EdgeInfo ei) {
 		// TODO ?
 	}
+
+    public synchronized EdgeList getOutboundEdges()
+    {
+        return outboundEdges;
+    }
 }
