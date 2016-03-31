@@ -185,7 +185,7 @@ public class EdgeMonitor implements EdgeListener, Runnable {
 
         for(EdgeInfo ei : activeConnections.values())
         {
-            if(ei.getChannel().isOpen())
+            if(ei.isActive() && ei.getChannel() != null && ei.getChannel().isOpen())
                 ei.getChannel().writeAndFlush(message);
         }
     }

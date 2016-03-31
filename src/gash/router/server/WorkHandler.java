@@ -15,6 +15,7 @@
  */
 package gash.router.server;
 
+import gash.router.server.edges.EdgeMonitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,6 +67,9 @@ public class WorkHandler extends SimpleChannelInboundHandler<WorkMessage> {
 			if (msg.hasBeat()) {
 				Heartbeat hb = msg.getBeat();
 				logger.debug("heartbeat from " + msg.getHeader().getNodeId());
+
+				if(!EdgeMonitor.activeConnections.containsKey(msg.getHeader().getNodeId()))
+					EdgeMonitor.activeConnections.put(msg.getHeader().getNodeId(), null);
 
 				// check leader state
                 ElectionHandler.getInstance().checkCurrentState();

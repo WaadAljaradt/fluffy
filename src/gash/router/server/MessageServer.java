@@ -66,6 +66,9 @@ public class MessageServer {
 	}
 
 	public void startServer() {
+
+		ElectionHandler.init(conf);
+
 		StartWorkCommunication comm = new StartWorkCommunication(conf);
 		logger.info("Work starting");
 
