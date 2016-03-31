@@ -178,7 +178,7 @@ public class EdgeMonitor implements EdgeListener, Runnable {
 
 	}
 
-    public static void broadcastMessage(Work.WorkMessage.Builder message)
+    public static void broadcastMessage(Work.WorkMessage message)
     {
         if(message == null)
             return;

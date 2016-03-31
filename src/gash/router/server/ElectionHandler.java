@@ -78,7 +78,7 @@ public class ElectionHandler {
 
         wb.setSecret(1000l);
 
-        EdgeMonitor.broadcastMessage(wb);
+        EdgeMonitor.broadcastMessage(wb.build());
 //        return wb.build();
     }
 
