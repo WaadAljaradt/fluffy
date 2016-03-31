@@ -62,6 +62,10 @@ public class ElectionHandler {
         sb.setProcessed(-1);
 
         pipe.election.Election.LeaderStatus.Builder leaderStatusBuilder = pipe.election.Election.LeaderStatus.newBuilder();
+        leaderStatusBuilder.setState(pipe.election.Election.LeaderStatus.LeaderState.LEADERUNKNOWN);
+        leaderStatusBuilder.setAction(pipe.election.Election.LeaderStatus.LeaderQuery.WHOISTHELEADER);
+        leaderStatusBuilder.setLeaderHost(null);
+        leaderStatusBuilder.setLeaderId(-1);
 
         Common.Header.Builder hb = Common.Header.newBuilder();
         hb.setNodeId(conf.getNodeId());

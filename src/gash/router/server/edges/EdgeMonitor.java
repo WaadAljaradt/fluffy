@@ -169,7 +169,7 @@ public class EdgeMonitor implements EdgeListener, Runnable {
 		}catch(Exception e){
 
             if(e instanceof ConnectException)
-                System.out.println("Unable to connect");
+                System.out.println("Unable to connect to "+ei.getRef());
             else
 			    e.printStackTrace();
 		}

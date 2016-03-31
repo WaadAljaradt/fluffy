@@ -21,6 +21,7 @@ public class EdgeCloseListener implements ChannelFutureListener {
     public void operationComplete(ChannelFuture channelFuture) throws Exception
     {
         // remove active connection and check if removed node was leader
+        System.out.print("connection to "+edgeInfo.getRef()+" closed");
         EdgeMonitor.activeConnections.remove(edgeInfo.getRef());
         ElectionHandler.getInstance().checkCurrentState();
     }
