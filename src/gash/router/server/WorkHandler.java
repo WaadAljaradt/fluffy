@@ -103,7 +103,7 @@ public class WorkHandler extends SimpleChannelInboundHandler<WorkMessage> {
 
             } else if (msg.hasElection()) {
 
-                ElectionHandler.getInstance().handleElection(msg.getElection());
+                ElectionHandler.getInstance().handleElection(msg);
 
             }
 
