@@ -1,11 +1,12 @@
 package gash.router.server;
 
+import com.sun.javafx.geom.Edge;
 import gash.router.container.RoutingConf;
+import gash.router.server.edges.EdgeInfo;
 import gash.router.server.edges.EdgeMonitor;
 import pipe.common.Common;
+import pipe.election.Election;
 import pipe.work.Work;
-
-import java.beans.Beans;
 
 /**
  * Created by patel on 3/30/2016.
@@ -16,13 +17,15 @@ public class ElectionHandler {
 
     private int leaderNodeId = -1;
 
-    private Election election;
+    private CustomElection customElection;
 
     private Integer syncInt = 0;
 
     private static RoutingConf conf;
 
     private static ElectionHandler electionHandlerInstance;
+
+    private long electionId;
 
     public static void init(RoutingConf cf)
     {
@@ -47,12 +50,41 @@ public class ElectionHandler {
         }
         else
         {
-            if(leaderNodeId < 0)
+            if(leaderNodeId < 0 && (customElection == null || !customElection.isElectionInprogress()))
             {
-                System.out.print("Time for election!!!");
-                // do the leader election
+                System.out.print("Time for customElection!!!");
+                // do the leader customElection
+                synchronized (syncInt)
+                {
+                    startElection();
+                }
             }
         }
+    }
+
+    public void startElection()
+    {
+        electionId = System.currentTimeMillis();
+
+        Election.LeaderElection.Builder leaderElectionBuilder = Election.LeaderElection.newBuilder();
+        leaderElectionBuilder.setElectionId(electionId);
+        leaderElectionBuilder.setAction(Election.LeaderElection.ElectAction.DECLAREELECTION);
+        leaderElectionBuilder.setCandidateId(conf.getNodeId());
+        leaderElectionBuilder.setExpires(2 * 60 * 1000 + System.currentTimeMillis());
+        leaderElectionBuilder.setHops(EdgeMonitor.activeConnections.size());
+
+        Common.Header.Builder hb = Common.Header.newBuilder();
+        hb.setNodeId(conf.getNodeId());
+        hb.setDestination(-1);
+        hb.setTime(System.currentTimeMillis());
+
+        Work.WorkMessage.Builder wb = Work.WorkMessage.newBuilder();
+        wb.setHeader(hb);
+        wb.setElection(leaderElectionBuilder);
+
+        wb.setSecret(1000l);
+
+        EdgeMonitor.broadcastMessage(wb.build());
     }
 
     public void askWhoIsTheLeader()
@@ -62,7 +94,6 @@ public class ElectionHandler {
         sb.setProcessed(-1);
 
         pipe.election.Election.LeaderStatus.Builder leaderStatusBuilder = pipe.election.Election.LeaderStatus.newBuilder();
-        leaderStatusBuilder.setState(pipe.election.Election.LeaderStatus.LeaderState.LEADERUNKNOWN);
         leaderStatusBuilder.setAction(pipe.election.Election.LeaderStatus.LeaderQuery.WHOISTHELEADER);
 //        leaderStatusBuilder.setLeaderHost("");
 //        leaderStatusBuilder.setLeaderId(-1);
@@ -82,29 +113,114 @@ public class ElectionHandler {
 //        return wb.build();
     }
 
+    private void whoIsTheLeader(Work.WorkMessage message) {
+
+        Common.Header.Builder hb = Common.Header.newBuilder();
+        hb.setNodeId(conf.getNodeId());
+        hb.setDestination(message.getHeader().getNodeId());
+        hb.setTime(System.currentTimeMillis());
+
+        pipe.election.Election.LeaderStatus.Builder leaderStatusBuilder = pipe.election.Election.LeaderStatus.newBuilder();
+        leaderStatusBuilder.setAction(Election.LeaderStatus.LeaderQuery.THELEADERIS);
+        leaderStatusBuilder.setElectionId(electionId);
+        leaderStatusBuilder.setLeaderId(leaderNodeId);
+
+        Work.WorkMessage.Builder wb = Work.WorkMessage.newBuilder();
+        wb.setHeader(hb);
+        wb.setLeader(leaderStatusBuilder);
+
+        wb.setSecret(1000l);
+
+        try {
+                EdgeInfo ei = EdgeMonitor.activeConnections.get(message.getHeader().getNodeId());
+                if(ei.getChannel() != null && ei.getChannel().isOpen())
+                {
+                    ei.getChannel().writeAndFlush(wb.build());
+                }
+
+//            ConnectionManager.getConnection(mgmt.getHeader().getOriginator(), true).write(mb.build());
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
     public int getLeaderNodeId()
     {
         return leaderNodeId;
     }
 
-    private Election electionInstance() {
-        if (election == null) {
+    private CustomElection getElectionInstance() {
+        if (customElection == null) {
             synchronized (syncInt) {
-                if (election !=null)
-                    return election;
+                if (customElection !=null)
+                    return customElection;
 
                 try {
 
-                    // create Election class
+                    // create CustomElection class
 
                 } catch (Exception e) {
 //                    e.printStackTrace();
-                    System.out.print("Failed to get election instance");
+                    System.out.print("Failed to get customElection instance");
                 }
             }
         }
 
-        return election;
+        return customElection;
 
+    }
+
+    public void handleElection(Work.WorkMessage electionMessage)
+    {
+        if (electionMessage.getElection().hasExpires()) {
+            long ct = System.currentTimeMillis();
+            if (ct > electionMessage.getElection().getExpires()) {
+                // ran out of time so the election is over
+                getElectionInstance().clear();
+                return;
+            }
+        }
+
+        if((electionId == -1) || (electionId== electionMessage.getElection().getElectionId())){		// This node has not started the election, should participate in the current election
+//            logger.info("Processing the first election received..");
+        }
+        else if(electionMessage.getElection().getElectionId() < electionId){	// Means the node received an election which was started before the one the node is processing
+//            logger.info("Received an older election..clearing the previous election as we are considering the oldest election");
+            getElectionInstance().clear();   // Clear the previous election state
+        }
+        electionId = electionMessage.getElection().getElectionId();
+        Work.WorkMessage toReturnMessage = getElectionInstance().process(electionMessage);
+        if (toReturnMessage != null){
+
+            try {
+                if(toReturnMessage.getElection().getAction().getNumber() == Election.LeaderElection.ElectAction.DECLAREWINNER_VALUE)
+                    EdgeMonitor.broadcastMessage(toReturnMessage);
+                else {
+                    EdgeMonitor.sendMessage(electionMessage.getHeader().getNodeId(), toReturnMessage);
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+    }
+
+    public void handleLeader(Work.WorkMessage message)
+    {
+        if(message.getLeader().getAction() == Election.LeaderStatus.LeaderQuery.WHOISTHELEADER) {
+            whoIsTheLeader(message);
+        }
+        else if(message.getLeader().getAction() == Election.LeaderStatus.LeaderQuery.THELEADERIS) {
+            leaderNodeId = message.getLeader().getLeaderId();
+        }
+    }
+
+    public void concludeWith(boolean success, Integer leaderID) {
+        if (success) {
+            System.out.println("The leader is " + leaderID);
+            leaderNodeId = leaderID;
+        }
+
+        customElection.clear();
+        electionId = -1;
     }
 }

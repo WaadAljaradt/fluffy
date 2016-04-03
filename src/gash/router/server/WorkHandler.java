@@ -68,29 +68,45 @@ public class WorkHandler extends SimpleChannelInboundHandler<WorkMessage> {
 				Heartbeat hb = msg.getBeat();
 				logger.debug("heartbeat from " + msg.getHeader().getNodeId());
 
-				if(!EdgeMonitor.activeConnections.containsKey(msg.getHeader().getNodeId()))
-					EdgeMonitor.activeConnections.put(msg.getHeader().getNodeId(), null);
+//				if(!EdgeMonitor.activeConnections.containsKey(msg.getHeader().getNodeId()))
+//					EdgeMonitor.activeConnections.put(msg.getHeader().getNodeId(), null);
 
 				// check leader state
                 ElectionHandler.getInstance().checkCurrentState();
 
 			} else if (msg.hasPing()) {
+
 				logger.info("ping from " + msg.getHeader().getNodeId());
 				boolean p = msg.getPing();
 				WorkMessage.Builder rb = WorkMessage.newBuilder();
 				rb.setPing(true);
 				channel.write(rb.build());
+
 			} else if (msg.hasErr()) {
+
 				Failure err = msg.getErr();
 				logger.error("failure from " + msg.getHeader().getNodeId());
 				// PrintUtil.printFailure(err);
+
 			} else if (msg.hasTask()) {
+
 				Task t = msg.getTask();
+
 			} else if (msg.hasState()) {
+
 				WorkState s = msg.getState();
+
 			} else if (msg.hasLeader()) {
+
                 System.out.print("inquiry for leader");
+                ElectionHandler.getInstance().handleLeader(msg);
+
+            } else if (msg.hasElection()) {
+
+                ElectionHandler.getInstance().handleElection(msg.getElection());
+
             }
+
 		} catch (Exception e) {
 			// TODO add logging
 			Failure.Builder eb = Failure.newBuilder();

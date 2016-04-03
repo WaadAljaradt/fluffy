@@ -190,6 +190,23 @@ public class EdgeMonitor implements EdgeListener, Runnable {
         }
     }
 
+    public static void sendMessage(int nodeId, WorkMessage workMessage)
+    {
+        try {
+
+            if(workMessage == null)
+                return;
+
+            Channel ch = activeConnections.get(nodeId).getChannel();
+            if(ch.isOpen())
+                ch.writeAndFlush(workMessage);
+
+        }catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+
 	@Override
 	public synchronized void onAdd(EdgeInfo ei) {
 		// TODO check connection

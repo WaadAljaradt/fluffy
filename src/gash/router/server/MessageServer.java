@@ -264,7 +264,7 @@ public class MessageServer {
 	}
 
 	/**
-	 * Create a thread for Leader Election
+	 * Create a thread for Leader CustomElection
 	 */
 	public class LeaderElection implements Runnable  {
 
