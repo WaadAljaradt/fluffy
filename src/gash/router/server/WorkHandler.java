@@ -98,7 +98,7 @@ public class WorkHandler extends SimpleChannelInboundHandler<WorkMessage> {
 
 			} else if (msg.hasLeader()) {
 
-                System.out.print("inquiry for leader");
+                System.out.println("inquiry for leader");
                 ElectionHandler.getInstance().handleLeader(msg);
 
             } else if (msg.hasElection()) {

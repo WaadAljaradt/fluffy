@@ -88,18 +88,23 @@ public class CustomElection {
     }
 
     public Work.WorkMessage process(Work.WorkMessage message) {
-        if (!message.hasElection())
-            return null;
-
-        Election.LeaderElection req = message.getElection();
 
         Work.WorkMessage toReturnMessage = null;
 
-        if (req.getAction().getNumber() == Election.LeaderElection.ElectAction.DECLAREELECTION_VALUE) {
-            // an election is declared!
+        try {
 
-            // required to eliminate duplicate messages - on a declaration,
-            // should not happen if the network does not have cycles
+            System.out.println("Got election message from "+message.getHeader().getNodeId()+" for "+ message.getElection().getAction());
+
+            if (!message.hasElection())
+                return null;
+
+            Election.LeaderElection req = message.getElection();
+
+            if (req.getAction().getNumber() == Election.LeaderElection.ElectAction.DECLAREELECTION_VALUE) {
+                // an election is declared!
+
+                // required to eliminate duplicate messages - on a declaration,
+                // should not happen if the network does not have cycles
 //            List<VectorClock> rtes = message.getHeader().getPathList();
 //            for (VectorClock rp : rtes) {
 //                if (rp.getNodeId() == this.nodeId) {
@@ -109,25 +114,31 @@ public class CustomElection {
 //                }
 //            }
 
-            if(hasAlreadyVoted)
-            {
-                return null;
+                if(hasAlreadyVoted)
+                {
+                    return null;
+                }
+
+                boolean isNew = updateCurrent(req);
+                toReturnMessage = castVote(message, isNew);
+
+            } else if (req.getAction().getNumber() == Election.LeaderElection.ElectAction.DECLAREVOID_VALUE) {
+                System.out.println("no one was elected");
+                this.clear();
+                ElectionHandler.getInstance().concludeWith(false, null);
+            } else if (req.getAction().getNumber() == Election.LeaderElection.ElectAction.DECLAREWINNER_VALUE) {
+                System.out.println("Election " + req.getElectionId() + ": Node " + req.getCandidateId() + " is declared the leader");
+                updateCurrent(message.getElection());
+                active = false;
+                ElectionHandler.getInstance().concludeWith(true, req.getCandidateId());
+            } else if (req.getAction().getNumber() == Election.LeaderElection.ElectAction.NOMINATE_VALUE) {
+                System.out.println("Nominating "+message.getHeader().getNodeId());
+                toReturnMessage = castVote(message, false);
             }
 
-            boolean isNew = updateCurrent(req);
-            toReturnMessage = castVote(message, isNew);
-
-        } else if (req.getAction().getNumber() == Election.LeaderElection.ElectAction.DECLAREVOID_VALUE) {
-            System.out.println("no one was elected");
-            this.clear();
-            ElectionHandler.getInstance().concludeWith(false, null);
-        } else if (req.getAction().getNumber() == Election.LeaderElection.ElectAction.DECLAREWINNER_VALUE) {
-            System.out.println("Election " + req.getElectionId() + ": Node " + req.getCandidateId() + " is declared the leader");
-            updateCurrent(message.getElection());
-            active = false;
-            ElectionHandler.getInstance().concludeWith(true, req.getCandidateId());
-        } else if (req.getAction().getNumber() == Election.LeaderElection.ElectAction.NOMINATE_VALUE) {
-            toReturnMessage = castVote(message, false);
+        }catch (Exception e)
+        {
+            e.printStackTrace();
         }
 
         return toReturnMessage;
@@ -225,6 +236,7 @@ public class CustomElection {
         Work.WorkMessage.Builder wb = Work.WorkMessage.newBuilder();
         wb.setHeader(hb);
         wb.setElection(leaderElectionBuilder);
+        wb.setSecret(1000);
 
         return wb.build();
     }

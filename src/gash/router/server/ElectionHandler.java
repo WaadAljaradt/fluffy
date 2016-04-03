@@ -59,12 +59,21 @@ public class ElectionHandler {
                     startElection();
                 }
             }
+            else
+            {
+                if(leaderNodeId >= 0)
+                    System.out.println("The leader is " + leaderNodeId);
+                else
+                    System.out.println("Elecion in progress");
+            }
         }
     }
 
     public void startElection()
     {
         electionId = System.currentTimeMillis();
+
+        getElectionInstance().active = true;
 
         Election.LeaderElection.Builder leaderElectionBuilder = Election.LeaderElection.newBuilder();
         leaderElectionBuilder.setElectionId(electionId);
@@ -158,6 +167,7 @@ public class ElectionHandler {
                 try {
 
                     // create CustomElection class
+                    customElection = new CustomElection(conf.getNodeId());
 
                 } catch (Exception e) {
 //                    e.printStackTrace();
@@ -172,35 +182,55 @@ public class ElectionHandler {
 
     public void handleElection(Work.WorkMessage electionMessage)
     {
-        if (electionMessage.getElection().hasExpires()) {
-            long ct = System.currentTimeMillis();
-            if (ct > electionMessage.getElection().getExpires()) {
-                // ran out of time so the election is over
-                getElectionInstance().clear();
-                return;
-            }
-        }
+        try {
 
-        if((electionId == -1) || (electionId== electionMessage.getElection().getElectionId())){		// This node has not started the election, should participate in the current election
-//            logger.info("Processing the first election received..");
-        }
-        else if(electionMessage.getElection().getElectionId() < electionId){	// Means the node received an election which was started before the one the node is processing
-//            logger.info("Received an older election..clearing the previous election as we are considering the oldest election");
-            getElectionInstance().clear();   // Clear the previous election state
-        }
-        electionId = electionMessage.getElection().getElectionId();
-        Work.WorkMessage toReturnMessage = getElectionInstance().process(electionMessage);
-        if (toReturnMessage != null){
+            getElectionInstance().active = true;
 
-            try {
-                if(toReturnMessage.getElection().getAction().getNumber() == Election.LeaderElection.ElectAction.DECLAREWINNER_VALUE)
-                    EdgeMonitor.broadcastMessage(toReturnMessage);
-                else {
-                    EdgeMonitor.sendMessage(electionMessage.getHeader().getNodeId(), toReturnMessage);
+            if (electionMessage.getElection().hasExpires()) {
+                long ct = System.currentTimeMillis();
+                if (ct > electionMessage.getElection().getExpires()) {
+                    // ran out of time so the election is over
+                    System.out.println("Election expired");
+                    getElectionInstance().clear();
+                    return;
                 }
-            } catch (Exception ex) {
-                ex.printStackTrace();
             }
+
+            if((electionId == -1) || (electionId== electionMessage.getElection().getElectionId())){		// This node has not started the election, should participate in the current election
+//            logger.info("Processing the first election received..");
+            }
+            else if(electionMessage.getElection().getElectionId() < electionId){	// Means the node received an election which was started before the one the node is processing
+//            logger.info("Received an older election..clearing the previous election as we are considering the oldest election");
+                getElectionInstance().clear();   // Clear the previous election state
+                System.out.println("Clearing own election before older election found");
+            }
+            electionId = electionMessage.getElection().getElectionId();
+
+            System.out.println("Processing Election Message...");
+
+            Work.WorkMessage toReturnMessage = getElectionInstance().process(electionMessage);
+            if (toReturnMessage != null){
+
+                try {
+                    if(toReturnMessage.getElection().getAction().getNumber() == Election.LeaderElection.ElectAction.DECLAREWINNER_VALUE) {
+
+                        System.out.println("Declaring winner");
+
+                        EdgeMonitor.broadcastMessage(toReturnMessage);
+                    }else {
+
+                        System.out.println("Sending response");
+
+                        EdgeMonitor.sendMessage(electionMessage.getHeader().getNodeId(), toReturnMessage);
+                    }
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
         }
     }
 
