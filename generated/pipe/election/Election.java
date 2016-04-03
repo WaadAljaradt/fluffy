@@ -52,6 +52,15 @@ public final class Election {
      * <code>optional int32 leader_id = 4;</code>
      */
     int getLeaderId();
+
+    /**
+     * <code>optional int64 election_id = 5;</code>
+     */
+    boolean hasElectionId();
+    /**
+     * <code>optional int64 election_id = 5;</code>
+     */
+    long getElectionId();
   }
   /**
    * Protobuf type {@code LeaderStatus}
@@ -140,6 +149,11 @@ public final class Election {
             case 32: {
               bitField0_ |= 0x00000008;
               leaderId_ = input.readInt32();
+              break;
+            }
+            case 40: {
+              bitField0_ |= 0x00000010;
+              electionId_ = input.readInt64();
               break;
             }
           }
@@ -442,11 +456,27 @@ public final class Election {
       return leaderId_;
     }
 
+    public static final int ELECTION_ID_FIELD_NUMBER = 5;
+    private long electionId_;
+    /**
+     * <code>optional int64 election_id = 5;</code>
+     */
+    public boolean hasElectionId() {
+      return ((bitField0_ & 0x00000010) == 0x00000010);
+    }
+    /**
+     * <code>optional int64 election_id = 5;</code>
+     */
+    public long getElectionId() {
+      return electionId_;
+    }
+
     private void initFields() {
       action_ = pipe.election.Election.LeaderStatus.LeaderQuery.WHOISTHELEADER;
       state_ = pipe.election.Election.LeaderStatus.LeaderState.LEADERUNKNOWN;
       leaderHost_ = "";
       leaderId_ = 0;
+      electionId_ = 0L;
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -477,6 +507,9 @@ public final class Election {
       if (((bitField0_ & 0x00000008) == 0x00000008)) {
         output.writeInt32(4, leaderId_);
       }
+      if (((bitField0_ & 0x00000010) == 0x00000010)) {
+        output.writeInt64(5, electionId_);
+      }
       getUnknownFields().writeTo(output);
     }
 
@@ -501,6 +534,10 @@ public final class Election {
       if (((bitField0_ & 0x00000008) == 0x00000008)) {
         size += com.google.protobuf.CodedOutputStream
           .computeInt32Size(4, leaderId_);
+      }
+      if (((bitField0_ & 0x00000010) == 0x00000010)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt64Size(5, electionId_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -631,6 +668,8 @@ public final class Election {
         bitField0_ = (bitField0_ & ~0x00000004);
         leaderId_ = 0;
         bitField0_ = (bitField0_ & ~0x00000008);
+        electionId_ = 0L;
+        bitField0_ = (bitField0_ & ~0x00000010);
         return this;
       }
 
@@ -675,6 +714,10 @@ public final class Election {
           to_bitField0_ |= 0x00000008;
         }
         result.leaderId_ = leaderId_;
+        if (((from_bitField0_ & 0x00000010) == 0x00000010)) {
+          to_bitField0_ |= 0x00000010;
+        }
+        result.electionId_ = electionId_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -704,6 +747,9 @@ public final class Election {
         }
         if (other.hasLeaderId()) {
           setLeaderId(other.getLeaderId());
+        }
+        if (other.hasElectionId()) {
+          setElectionId(other.getElectionId());
         }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
@@ -914,6 +960,38 @@ public final class Election {
         return this;
       }
 
+      private long electionId_ ;
+      /**
+       * <code>optional int64 election_id = 5;</code>
+       */
+      public boolean hasElectionId() {
+        return ((bitField0_ & 0x00000010) == 0x00000010);
+      }
+      /**
+       * <code>optional int64 election_id = 5;</code>
+       */
+      public long getElectionId() {
+        return electionId_;
+      }
+      /**
+       * <code>optional int64 election_id = 5;</code>
+       */
+      public Builder setElectionId(long value) {
+        bitField0_ |= 0x00000010;
+        electionId_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional int64 election_id = 5;</code>
+       */
+      public Builder clearElectionId() {
+        bitField0_ = (bitField0_ & ~0x00000010);
+        electionId_ = 0L;
+        onChanged();
+        return this;
+      }
+
       // @@protoc_insertion_point(builder_scope:LeaderStatus)
     }
 
@@ -925,11 +1003,867 @@ public final class Election {
     // @@protoc_insertion_point(class_scope:LeaderStatus)
   }
 
+  public interface LeaderElectionOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:LeaderElection)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <code>required int64 election_id = 2;</code>
+     */
+    boolean hasElectionId();
+    /**
+     * <code>required int64 election_id = 2;</code>
+     */
+    long getElectionId();
+
+    /**
+     * <code>required int32 candidate_id = 3;</code>
+     */
+    boolean hasCandidateId();
+    /**
+     * <code>required int32 candidate_id = 3;</code>
+     */
+    int getCandidateId();
+
+    /**
+     * <code>required .LeaderElection.ElectAction action = 5;</code>
+     */
+    boolean hasAction();
+    /**
+     * <code>required .LeaderElection.ElectAction action = 5;</code>
+     */
+    pipe.election.Election.LeaderElection.ElectAction getAction();
+
+    /**
+     * <code>optional int64 expires = 6 [default = -1];</code>
+     */
+    boolean hasExpires();
+    /**
+     * <code>optional int64 expires = 6 [default = -1];</code>
+     */
+    long getExpires();
+
+    /**
+     * <code>optional int32 hops = 7 [default = -1];</code>
+     */
+    boolean hasHops();
+    /**
+     * <code>optional int32 hops = 7 [default = -1];</code>
+     */
+    int getHops();
+  }
+  /**
+   * Protobuf type {@code LeaderElection}
+   */
+  public static final class LeaderElection extends
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:LeaderElection)
+      LeaderElectionOrBuilder {
+    // Use LeaderElection.newBuilder() to construct.
+    private LeaderElection(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+      super(builder);
+      this.unknownFields = builder.getUnknownFields();
+    }
+    private LeaderElection(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
+
+    private static final LeaderElection defaultInstance;
+    public static LeaderElection getDefaultInstance() {
+      return defaultInstance;
+    }
+
+    public LeaderElection getDefaultInstanceForType() {
+      return defaultInstance;
+    }
+
+    private final com.google.protobuf.UnknownFieldSet unknownFields;
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+        getUnknownFields() {
+      return this.unknownFields;
+    }
+    private LeaderElection(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      initFields();
+      int mutable_bitField0_ = 0;
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder();
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            default: {
+              if (!parseUnknownField(input, unknownFields,
+                                     extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
+            case 16: {
+              bitField0_ |= 0x00000001;
+              electionId_ = input.readInt64();
+              break;
+            }
+            case 24: {
+              bitField0_ |= 0x00000002;
+              candidateId_ = input.readInt32();
+              break;
+            }
+            case 40: {
+              int rawValue = input.readEnum();
+              pipe.election.Election.LeaderElection.ElectAction value = pipe.election.Election.LeaderElection.ElectAction.valueOf(rawValue);
+              if (value == null) {
+                unknownFields.mergeVarintField(5, rawValue);
+              } else {
+                bitField0_ |= 0x00000004;
+                action_ = value;
+              }
+              break;
+            }
+            case 48: {
+              bitField0_ |= 0x00000008;
+              expires_ = input.readInt64();
+              break;
+            }
+            case 56: {
+              bitField0_ |= 0x00000010;
+              hops_ = input.readInt32();
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(this);
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+            e.getMessage()).setUnfinishedMessage(this);
+      } finally {
+        this.unknownFields = unknownFields.build();
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return pipe.election.Election.internal_static_LeaderElection_descriptor;
+    }
+
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return pipe.election.Election.internal_static_LeaderElection_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              pipe.election.Election.LeaderElection.class, pipe.election.Election.LeaderElection.Builder.class);
+    }
+
+    public static com.google.protobuf.Parser<LeaderElection> PARSER =
+        new com.google.protobuf.AbstractParser<LeaderElection>() {
+      public LeaderElection parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return new LeaderElection(input, extensionRegistry);
+      }
+    };
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<LeaderElection> getParserForType() {
+      return PARSER;
+    }
+
+    /**
+     * Protobuf enum {@code LeaderElection.ElectAction}
+     */
+    public enum ElectAction
+        implements com.google.protobuf.ProtocolMessageEnum {
+      /**
+       * <code>DECLAREELECTION = 1;</code>
+       */
+      DECLAREELECTION(0, 1),
+      /**
+       * <code>PROPOSAL = 2;</code>
+       */
+      PROPOSAL(1, 2),
+      /**
+       * <code>NOMINATE = 3;</code>
+       */
+      NOMINATE(2, 3),
+      /**
+       * <code>DECLAREWINNER = 4;</code>
+       */
+      DECLAREWINNER(3, 4),
+      /**
+       * <code>DECLAREVOID = 5;</code>
+       */
+      DECLAREVOID(4, 5),
+      ;
+
+      /**
+       * <code>DECLAREELECTION = 1;</code>
+       */
+      public static final int DECLAREELECTION_VALUE = 1;
+      /**
+       * <code>PROPOSAL = 2;</code>
+       */
+      public static final int PROPOSAL_VALUE = 2;
+      /**
+       * <code>NOMINATE = 3;</code>
+       */
+      public static final int NOMINATE_VALUE = 3;
+      /**
+       * <code>DECLAREWINNER = 4;</code>
+       */
+      public static final int DECLAREWINNER_VALUE = 4;
+      /**
+       * <code>DECLAREVOID = 5;</code>
+       */
+      public static final int DECLAREVOID_VALUE = 5;
+
+
+      public final int getNumber() { return value; }
+
+      public static ElectAction valueOf(int value) {
+        switch (value) {
+          case 1: return DECLAREELECTION;
+          case 2: return PROPOSAL;
+          case 3: return NOMINATE;
+          case 4: return DECLAREWINNER;
+          case 5: return DECLAREVOID;
+          default: return null;
+        }
+      }
+
+      public static com.google.protobuf.Internal.EnumLiteMap<ElectAction>
+          internalGetValueMap() {
+        return internalValueMap;
+      }
+      private static com.google.protobuf.Internal.EnumLiteMap<ElectAction>
+          internalValueMap =
+            new com.google.protobuf.Internal.EnumLiteMap<ElectAction>() {
+              public ElectAction findValueByNumber(int number) {
+                return ElectAction.valueOf(number);
+              }
+            };
+
+      public final com.google.protobuf.Descriptors.EnumValueDescriptor
+          getValueDescriptor() {
+        return getDescriptor().getValues().get(index);
+      }
+      public final com.google.protobuf.Descriptors.EnumDescriptor
+          getDescriptorForType() {
+        return getDescriptor();
+      }
+      public static final com.google.protobuf.Descriptors.EnumDescriptor
+          getDescriptor() {
+        return pipe.election.Election.LeaderElection.getDescriptor().getEnumTypes().get(0);
+      }
+
+      private static final ElectAction[] VALUES = values();
+
+      public static ElectAction valueOf(
+          com.google.protobuf.Descriptors.EnumValueDescriptor desc) {
+        if (desc.getType() != getDescriptor()) {
+          throw new java.lang.IllegalArgumentException(
+            "EnumValueDescriptor is not for this type.");
+        }
+        return VALUES[desc.getIndex()];
+      }
+
+      private final int index;
+      private final int value;
+
+      private ElectAction(int index, int value) {
+        this.index = index;
+        this.value = value;
+      }
+
+      // @@protoc_insertion_point(enum_scope:LeaderElection.ElectAction)
+    }
+
+    private int bitField0_;
+    public static final int ELECTION_ID_FIELD_NUMBER = 2;
+    private long electionId_;
+    /**
+     * <code>required int64 election_id = 2;</code>
+     */
+    public boolean hasElectionId() {
+      return ((bitField0_ & 0x00000001) == 0x00000001);
+    }
+    /**
+     * <code>required int64 election_id = 2;</code>
+     */
+    public long getElectionId() {
+      return electionId_;
+    }
+
+    public static final int CANDIDATE_ID_FIELD_NUMBER = 3;
+    private int candidateId_;
+    /**
+     * <code>required int32 candidate_id = 3;</code>
+     */
+    public boolean hasCandidateId() {
+      return ((bitField0_ & 0x00000002) == 0x00000002);
+    }
+    /**
+     * <code>required int32 candidate_id = 3;</code>
+     */
+    public int getCandidateId() {
+      return candidateId_;
+    }
+
+    public static final int ACTION_FIELD_NUMBER = 5;
+    private pipe.election.Election.LeaderElection.ElectAction action_;
+    /**
+     * <code>required .LeaderElection.ElectAction action = 5;</code>
+     */
+    public boolean hasAction() {
+      return ((bitField0_ & 0x00000004) == 0x00000004);
+    }
+    /**
+     * <code>required .LeaderElection.ElectAction action = 5;</code>
+     */
+    public pipe.election.Election.LeaderElection.ElectAction getAction() {
+      return action_;
+    }
+
+    public static final int EXPIRES_FIELD_NUMBER = 6;
+    private long expires_;
+    /**
+     * <code>optional int64 expires = 6 [default = -1];</code>
+     */
+    public boolean hasExpires() {
+      return ((bitField0_ & 0x00000008) == 0x00000008);
+    }
+    /**
+     * <code>optional int64 expires = 6 [default = -1];</code>
+     */
+    public long getExpires() {
+      return expires_;
+    }
+
+    public static final int HOPS_FIELD_NUMBER = 7;
+    private int hops_;
+    /**
+     * <code>optional int32 hops = 7 [default = -1];</code>
+     */
+    public boolean hasHops() {
+      return ((bitField0_ & 0x00000010) == 0x00000010);
+    }
+    /**
+     * <code>optional int32 hops = 7 [default = -1];</code>
+     */
+    public int getHops() {
+      return hops_;
+    }
+
+    private void initFields() {
+      electionId_ = 0L;
+      candidateId_ = 0;
+      action_ = pipe.election.Election.LeaderElection.ElectAction.DECLAREELECTION;
+      expires_ = -1L;
+      hops_ = -1;
+    }
+    private byte memoizedIsInitialized = -1;
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      if (!hasElectionId()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+      if (!hasCandidateId()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+      if (!hasAction()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      getSerializedSize();
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        output.writeInt64(2, electionId_);
+      }
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        output.writeInt32(3, candidateId_);
+      }
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+        output.writeEnum(5, action_.getNumber());
+      }
+      if (((bitField0_ & 0x00000008) == 0x00000008)) {
+        output.writeInt64(6, expires_);
+      }
+      if (((bitField0_ & 0x00000010) == 0x00000010)) {
+        output.writeInt32(7, hops_);
+      }
+      getUnknownFields().writeTo(output);
+    }
+
+    private int memoizedSerializedSize = -1;
+    public int getSerializedSize() {
+      int size = memoizedSerializedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt64Size(2, electionId_);
+      }
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(3, candidateId_);
+      }
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeEnumSize(5, action_.getNumber());
+      }
+      if (((bitField0_ & 0x00000008) == 0x00000008)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt64Size(6, expires_);
+      }
+      if (((bitField0_ & 0x00000010) == 0x00000010)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(7, hops_);
+      }
+      size += getUnknownFields().getSerializedSize();
+      memoizedSerializedSize = size;
+      return size;
+    }
+
+    private static final long serialVersionUID = 0L;
+    @java.lang.Override
+    protected java.lang.Object writeReplace()
+        throws java.io.ObjectStreamException {
+      return super.writeReplace();
+    }
+
+    public static pipe.election.Election.LeaderElection parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static pipe.election.Election.LeaderElection parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static pipe.election.Election.LeaderElection parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static pipe.election.Election.LeaderElection parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static pipe.election.Election.LeaderElection parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static pipe.election.Election.LeaderElection parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+    public static pipe.election.Election.LeaderElection parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input);
+    }
+    public static pipe.election.Election.LeaderElection parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input, extensionRegistry);
+    }
+    public static pipe.election.Election.LeaderElection parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static pipe.election.Election.LeaderElection parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+
+    public static Builder newBuilder() { return Builder.create(); }
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder(pipe.election.Election.LeaderElection prototype) {
+      return newBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() { return newBuilder(this); }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code LeaderElection}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:LeaderElection)
+        pipe.election.Election.LeaderElectionOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return pipe.election.Election.internal_static_LeaderElection_descriptor;
+      }
+
+      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return pipe.election.Election.internal_static_LeaderElection_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                pipe.election.Election.LeaderElection.class, pipe.election.Election.LeaderElection.Builder.class);
+      }
+
+      // Construct using pipe.election.Election.LeaderElection.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+        }
+      }
+      private static Builder create() {
+        return new Builder();
+      }
+
+      public Builder clear() {
+        super.clear();
+        electionId_ = 0L;
+        bitField0_ = (bitField0_ & ~0x00000001);
+        candidateId_ = 0;
+        bitField0_ = (bitField0_ & ~0x00000002);
+        action_ = pipe.election.Election.LeaderElection.ElectAction.DECLAREELECTION;
+        bitField0_ = (bitField0_ & ~0x00000004);
+        expires_ = -1L;
+        bitField0_ = (bitField0_ & ~0x00000008);
+        hops_ = -1;
+        bitField0_ = (bitField0_ & ~0x00000010);
+        return this;
+      }
+
+      public Builder clone() {
+        return create().mergeFrom(buildPartial());
+      }
+
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return pipe.election.Election.internal_static_LeaderElection_descriptor;
+      }
+
+      public pipe.election.Election.LeaderElection getDefaultInstanceForType() {
+        return pipe.election.Election.LeaderElection.getDefaultInstance();
+      }
+
+      public pipe.election.Election.LeaderElection build() {
+        pipe.election.Election.LeaderElection result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      public pipe.election.Election.LeaderElection buildPartial() {
+        pipe.election.Election.LeaderElection result = new pipe.election.Election.LeaderElection(this);
+        int from_bitField0_ = bitField0_;
+        int to_bitField0_ = 0;
+        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
+          to_bitField0_ |= 0x00000001;
+        }
+        result.electionId_ = electionId_;
+        if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
+          to_bitField0_ |= 0x00000002;
+        }
+        result.candidateId_ = candidateId_;
+        if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
+          to_bitField0_ |= 0x00000004;
+        }
+        result.action_ = action_;
+        if (((from_bitField0_ & 0x00000008) == 0x00000008)) {
+          to_bitField0_ |= 0x00000008;
+        }
+        result.expires_ = expires_;
+        if (((from_bitField0_ & 0x00000010) == 0x00000010)) {
+          to_bitField0_ |= 0x00000010;
+        }
+        result.hops_ = hops_;
+        result.bitField0_ = to_bitField0_;
+        onBuilt();
+        return result;
+      }
+
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof pipe.election.Election.LeaderElection) {
+          return mergeFrom((pipe.election.Election.LeaderElection)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(pipe.election.Election.LeaderElection other) {
+        if (other == pipe.election.Election.LeaderElection.getDefaultInstance()) return this;
+        if (other.hasElectionId()) {
+          setElectionId(other.getElectionId());
+        }
+        if (other.hasCandidateId()) {
+          setCandidateId(other.getCandidateId());
+        }
+        if (other.hasAction()) {
+          setAction(other.getAction());
+        }
+        if (other.hasExpires()) {
+          setExpires(other.getExpires());
+        }
+        if (other.hasHops()) {
+          setHops(other.getHops());
+        }
+        this.mergeUnknownFields(other.getUnknownFields());
+        return this;
+      }
+
+      public final boolean isInitialized() {
+        if (!hasElectionId()) {
+          
+          return false;
+        }
+        if (!hasCandidateId()) {
+          
+          return false;
+        }
+        if (!hasAction()) {
+          
+          return false;
+        }
+        return true;
+      }
+
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        pipe.election.Election.LeaderElection parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (pipe.election.Election.LeaderElection) e.getUnfinishedMessage();
+          throw e;
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+      private int bitField0_;
+
+      private long electionId_ ;
+      /**
+       * <code>required int64 election_id = 2;</code>
+       */
+      public boolean hasElectionId() {
+        return ((bitField0_ & 0x00000001) == 0x00000001);
+      }
+      /**
+       * <code>required int64 election_id = 2;</code>
+       */
+      public long getElectionId() {
+        return electionId_;
+      }
+      /**
+       * <code>required int64 election_id = 2;</code>
+       */
+      public Builder setElectionId(long value) {
+        bitField0_ |= 0x00000001;
+        electionId_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>required int64 election_id = 2;</code>
+       */
+      public Builder clearElectionId() {
+        bitField0_ = (bitField0_ & ~0x00000001);
+        electionId_ = 0L;
+        onChanged();
+        return this;
+      }
+
+      private int candidateId_ ;
+      /**
+       * <code>required int32 candidate_id = 3;</code>
+       */
+      public boolean hasCandidateId() {
+        return ((bitField0_ & 0x00000002) == 0x00000002);
+      }
+      /**
+       * <code>required int32 candidate_id = 3;</code>
+       */
+      public int getCandidateId() {
+        return candidateId_;
+      }
+      /**
+       * <code>required int32 candidate_id = 3;</code>
+       */
+      public Builder setCandidateId(int value) {
+        bitField0_ |= 0x00000002;
+        candidateId_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>required int32 candidate_id = 3;</code>
+       */
+      public Builder clearCandidateId() {
+        bitField0_ = (bitField0_ & ~0x00000002);
+        candidateId_ = 0;
+        onChanged();
+        return this;
+      }
+
+      private pipe.election.Election.LeaderElection.ElectAction action_ = pipe.election.Election.LeaderElection.ElectAction.DECLAREELECTION;
+      /**
+       * <code>required .LeaderElection.ElectAction action = 5;</code>
+       */
+      public boolean hasAction() {
+        return ((bitField0_ & 0x00000004) == 0x00000004);
+      }
+      /**
+       * <code>required .LeaderElection.ElectAction action = 5;</code>
+       */
+      public pipe.election.Election.LeaderElection.ElectAction getAction() {
+        return action_;
+      }
+      /**
+       * <code>required .LeaderElection.ElectAction action = 5;</code>
+       */
+      public Builder setAction(pipe.election.Election.LeaderElection.ElectAction value) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        bitField0_ |= 0x00000004;
+        action_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>required .LeaderElection.ElectAction action = 5;</code>
+       */
+      public Builder clearAction() {
+        bitField0_ = (bitField0_ & ~0x00000004);
+        action_ = pipe.election.Election.LeaderElection.ElectAction.DECLAREELECTION;
+        onChanged();
+        return this;
+      }
+
+      private long expires_ = -1L;
+      /**
+       * <code>optional int64 expires = 6 [default = -1];</code>
+       */
+      public boolean hasExpires() {
+        return ((bitField0_ & 0x00000008) == 0x00000008);
+      }
+      /**
+       * <code>optional int64 expires = 6 [default = -1];</code>
+       */
+      public long getExpires() {
+        return expires_;
+      }
+      /**
+       * <code>optional int64 expires = 6 [default = -1];</code>
+       */
+      public Builder setExpires(long value) {
+        bitField0_ |= 0x00000008;
+        expires_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional int64 expires = 6 [default = -1];</code>
+       */
+      public Builder clearExpires() {
+        bitField0_ = (bitField0_ & ~0x00000008);
+        expires_ = -1L;
+        onChanged();
+        return this;
+      }
+
+      private int hops_ = -1;
+      /**
+       * <code>optional int32 hops = 7 [default = -1];</code>
+       */
+      public boolean hasHops() {
+        return ((bitField0_ & 0x00000010) == 0x00000010);
+      }
+      /**
+       * <code>optional int32 hops = 7 [default = -1];</code>
+       */
+      public int getHops() {
+        return hops_;
+      }
+      /**
+       * <code>optional int32 hops = 7 [default = -1];</code>
+       */
+      public Builder setHops(int value) {
+        bitField0_ |= 0x00000010;
+        hops_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional int32 hops = 7 [default = -1];</code>
+       */
+      public Builder clearHops() {
+        bitField0_ = (bitField0_ & ~0x00000010);
+        hops_ = -1;
+        onChanged();
+        return this;
+      }
+
+      // @@protoc_insertion_point(builder_scope:LeaderElection)
+    }
+
+    static {
+      defaultInstance = new LeaderElection(true);
+      defaultInstance.initFields();
+    }
+
+    // @@protoc_insertion_point(class_scope:LeaderElection)
+  }
+
   private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_LeaderStatus_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_LeaderStatus_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_LeaderElection_descriptor;
+  private static
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_LeaderElection_fieldAccessorTable;
 
   public static com.google.protobuf.Descriptors.FileDescriptor
       getDescriptor() {
@@ -939,14 +1873,21 @@ public final class Election {
       descriptor;
   static {
     java.lang.String[] descriptorData = {
-      "\n\016election.proto\"\202\002\n\014LeaderStatus\022)\n\006act" +
+      "\n\016election.proto\"\227\002\n\014LeaderStatus\022)\n\006act" +
       "ion\030\001 \002(\0162\031.LeaderStatus.LeaderQuery\022(\n\005" +
       "state\030\002 \001(\0162\031.LeaderStatus.LeaderState\022\023" +
-      "\n\013leader_host\030\003 \001(\t\022\021\n\tleader_id\030\004 \001(\005\"A" +
-      "\n\013LeaderState\022\021\n\rLEADERUNKNOWN\020\001\022\017\n\013LEAD" +
-      "ERALIVE\020\002\022\016\n\nLEADERDEAD\020\003\"2\n\013LeaderQuery" +
-      "\022\022\n\016WHOISTHELEADER\020\001\022\017\n\013THELEADERIS\020\002B\021\n" +
-      "\rpipe.electionH\001"
+      "\n\013leader_host\030\003 \001(\t\022\021\n\tleader_id\030\004 \001(\005\022\023" +
+      "\n\013election_id\030\005 \001(\003\"A\n\013LeaderState\022\021\n\rLE" +
+      "ADERUNKNOWN\020\001\022\017\n\013LEADERALIVE\020\002\022\016\n\nLEADER" +
+      "DEAD\020\003\"2\n\013LeaderQuery\022\022\n\016WHOISTHELEADER\020" +
+      "\001\022\017\n\013THELEADERIS\020\002\"\363\001\n\016LeaderElection\022\023\n" +
+      "\013election_id\030\002 \002(\003\022\024\n\014candidate_id\030\003 \002(\005" +
+      "\022+\n\006action\030\005 \002(\0162\033.LeaderElection.ElectA",
+      "ction\022\023\n\007expires\030\006 \001(\003:\002-1\022\020\n\004hops\030\007 \001(\005" +
+      ":\002-1\"b\n\013ElectAction\022\023\n\017DECLAREELECTION\020\001" +
+      "\022\014\n\010PROPOSAL\020\002\022\014\n\010NOMINATE\020\003\022\021\n\rDECLAREW" +
+      "INNER\020\004\022\017\n\013DECLAREVOID\020\005B\021\n\rpipe.electio" +
+      "nH\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -965,7 +1906,13 @@ public final class Election {
     internal_static_LeaderStatus_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_LeaderStatus_descriptor,
-        new java.lang.String[] { "Action", "State", "LeaderHost", "LeaderId", });
+        new java.lang.String[] { "Action", "State", "LeaderHost", "LeaderId", "ElectionId", });
+    internal_static_LeaderElection_descriptor =
+      getDescriptor().getMessageTypes().get(1);
+    internal_static_LeaderElection_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_LeaderElection_descriptor,
+        new java.lang.String[] { "ElectionId", "CandidateId", "Action", "Expires", "Hops", });
   }
 
   // @@protoc_insertion_point(outer_class_scope)
