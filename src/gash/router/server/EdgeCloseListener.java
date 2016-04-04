@@ -23,6 +23,13 @@ public class EdgeCloseListener implements ChannelFutureListener {
         // remove active connection and check if removed node was leader
         System.out.print("connection to "+edgeInfo.getRef()+" closed");
         EdgeMonitor.activeConnections.remove(edgeInfo.getRef());
+
+        if(ElectionHandler.getInstance().getLeaderNodeId() == edgeInfo.getRef())
+        {
+            ElectionHandler.getInstance().leaderIsDead();
+            System.out.println("The leader is dead!! The leader is dead!!");
+        }
+
         ElectionHandler.getInstance().checkCurrentState();
     }
 }
