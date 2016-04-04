@@ -21,7 +21,7 @@ public class CustomElection {
     protected long startedOn = 0, lastVoteOn = 0, maxDuration = -1;
     protected int candidateId;
 
-    private boolean hasAlreadyVoted = false;
+    protected boolean hasAlreadyVoted = false;
 
     protected boolean active = false;
 
@@ -55,6 +55,9 @@ public class CustomElection {
 
     public synchronized void clear() {
         active = false;
+        hasAlreadyVoted = false;
+        receivedVotes = 0;
+        maxVotes = 0;
     }
 
     public boolean updateCurrent(Election.LeaderElection req) {
@@ -87,7 +90,7 @@ public class CustomElection {
         this.maxHops = maxHops;
     }
 
-    public Work.WorkMessage process(Work.WorkMessage message) {
+    public synchronized Work.WorkMessage process(Work.WorkMessage message) {
 
         Work.WorkMessage toReturnMessage = null;
 
@@ -176,6 +179,8 @@ public class CustomElection {
 //            }
 //        }
 
+        System.out.println("hasAlreadyVoted "+hasAlreadyVoted);
+
         if(hasAlreadyVoted )
             return null;
 
@@ -200,6 +205,7 @@ public class CustomElection {
             leaderElectionBuilder.setAction(Election.LeaderElection.ElectAction.NOMINATE);
             leaderElectionBuilder.setCandidateId(req.getCandidateId());
             if (req.getCandidateId() < this.nodeId){
+                System.out.println("I am higher id. I will be leader");
                 leaderElectionBuilder.setCandidateId(this.nodeId);
                 candidateId = this.nodeId;
             }
@@ -207,14 +213,17 @@ public class CustomElection {
         else if(req.getAction().getNumber() == Election.LeaderElection.ElectAction.NOMINATE_VALUE){
             receivedVotes++;
             if(req.getCandidateId()> candidateId){
+                System.out.println("got request from higher id");
                 candidateId = req.getCandidateId();
             }
             if(receivedVotes == req.getHops()){
+                System.out.println("max hops reached");
                 leaderElectionBuilder.setCandidateId(candidateId);
                 leaderElectionBuilder.setAction(Election.LeaderElection.ElectAction.DECLAREWINNER);
                 ElectionHandler.getInstance().concludeWith(true, candidateId);
             }
             else{
+                System.out.println("No idea why it stopped");
                 return null;
             }
 

@@ -123,7 +123,7 @@ public class EdgeMonitor implements EdgeListener, Runnable {
 
 						ei.setActive(true);
 						if (channel == null) {
-							logger.info("trying to connect to node " + ei.getRef());
+//							logger.info("trying to connect to node " + ei.getRef());
 						}
                         else
                         {
@@ -168,10 +168,10 @@ public class EdgeMonitor implements EdgeListener, Runnable {
             retChannel.closeFuture().addListener(edgeCloseListener);
 		}catch(Exception e){
 
-            if(e instanceof ConnectException)
-                System.out.println("Unable to connect to "+ei.getRef());
-            else
-			    e.printStackTrace();
+//            if(e instanceof ConnectException)
+//                System.out.println("Unable to connect to "+ei.getRef());
+//            else
+//			    e.printStackTrace();
 		}
 		
 		return retChannel;
