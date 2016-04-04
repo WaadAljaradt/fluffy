@@ -58,7 +58,7 @@ public class WorkHandler extends SimpleChannelInboundHandler<WorkMessage> {
 			System.out.println("ERROR: Unexpected content - " + msg);
 			return;
 		}
-
+		
 		if (debug)
 			PrintUtil.printWork(msg);
 

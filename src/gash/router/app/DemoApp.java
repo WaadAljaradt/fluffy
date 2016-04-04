@@ -22,7 +22,7 @@ import routing.Pipe.CommandMessage;
 
 public class DemoApp implements CommListener {
 	private MessageClient mc;
-
+	
 	public DemoApp(MessageClient mc) {
 		init(mc);
 	}

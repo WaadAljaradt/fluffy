@@ -34,7 +34,6 @@
 	<target name="build" depends="clean">
 		<mkdir dir="${build.dir}" />
 
-		
 		<javac destdir="${build.dir}" debug="true" deprecation="false" optimize="false" failonerror="true">
 			<src path="${generated.dir}" />
 			<classpath refid="project.classpath" />

@@ -1,0 +1,10 @@
+option optimize_for = SPEED;
+option java_package = "pipe.filedata";
+
+import "common.proto";
+
+message FileDataInfo {
+		required string filename = 1;
+		required bytes data = 2;
+}
+	

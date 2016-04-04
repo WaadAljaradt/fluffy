@@ -15,7 +15,13 @@
  */
 package gash.router.client;
 
+import java.io.File;
+import java.io.FileInputStream;
+
+import com.google.protobuf.ByteString;
+
 import pipe.common.Common.Header;
+import pipe.filedata.Filedata.FileDataInfo;
 import routing.Pipe.CommandMessage;
 
 /**
@@ -46,11 +52,30 @@ public class MessageClient {
 		hb.setNodeId(999);
 		hb.setTime(System.currentTimeMillis());
 		hb.setDestination(-1);
-
+		
 		CommandMessage.Builder rb = CommandMessage.newBuilder();
 		rb.setHeader(hb);
 		rb.setPing(true);
-
+			
+		FileDataInfo.Builder fd = FileDataInfo.newBuilder();
+		
+		System.out.println("Sending a file");
+		
+		File file = new File("C:\\Users\\Ashok\\Desktop\\s2.png");
+		fd.setFilename("s2.png");
+		try {
+			FileInputStream fis = new FileInputStream(file);
+			int length = (int) file.length(); // returns long
+			byte[] dataBuffer = new byte[length];
+			fis.read(dataBuffer);
+			ByteString bs = ByteString.copyFrom(dataBuffer);
+			fd.setData(bs);
+			rb.setData(fd);
+			fis.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
 		try {
 			// direct no queue
 			// CommConnection.getInstance().write(rb.build());

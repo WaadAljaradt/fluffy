@@ -2,6 +2,7 @@ option optimize_for = SPEED;
 option java_package = "routing";
 
 import "common.proto";
+import "filedata.proto";
 
 message CommandMessage {
    required Header header = 1;
@@ -14,4 +15,6 @@ message CommandMessage {
       
       Failure err = 5;
    }
+   optional FileDataInfo data = 6;
+   
 }

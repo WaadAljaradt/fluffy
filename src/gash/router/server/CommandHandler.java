@@ -15,6 +15,9 @@
  */
 package gash.router.server;
 
+import java.io.File;
+import java.io.FileOutputStream;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,6 +69,18 @@ public class CommandHandler extends SimpleChannelInboundHandler<CommandMessage> 
 			} else if (msg.hasMessage()) {
 				logger.info(msg.getMessage());
 			} else {
+			}
+
+			if (msg.hasData()) {
+				if (msg.getData().hasFilename()) {
+					File file = new File(msg.getData().getFilename());
+					if (msg.hasData()) {
+						FileOutputStream fos = new FileOutputStream(file);
+						byte[] filedata = msg.getData().getData().toByteArray();
+						fos.write(filedata, 0, filedata.length);
+						fos.close();
+					}
+				}
 			}
 
 		} catch (Exception e) {

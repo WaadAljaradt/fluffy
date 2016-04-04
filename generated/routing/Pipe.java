@@ -68,6 +68,19 @@ public final class Pipe {
      * <code>optional .Failure err = 5;</code>
      */
     pipe.common.Common.FailureOrBuilder getErrOrBuilder();
+
+    /**
+     * <code>optional .FileDataInfo data = 6;</code>
+     */
+    boolean hasData();
+    /**
+     * <code>optional .FileDataInfo data = 6;</code>
+     */
+    pipe.filedata.Filedata.FileDataInfo getData();
+    /**
+     * <code>optional .FileDataInfo data = 6;</code>
+     */
+    pipe.filedata.Filedata.FileDataInfoOrBuilder getDataOrBuilder();
   }
   /**
    * Protobuf type {@code CommandMessage}
@@ -156,6 +169,19 @@ public final class Pipe {
                 payload_ = subBuilder.buildPartial();
               }
               payloadCase_ = 5;
+              break;
+            }
+            case 50: {
+              pipe.filedata.Filedata.FileDataInfo.Builder subBuilder = null;
+              if (((bitField0_ & 0x00000010) == 0x00000010)) {
+                subBuilder = data_.toBuilder();
+              }
+              data_ = input.readMessage(pipe.filedata.Filedata.FileDataInfo.PARSER, extensionRegistry);
+              if (subBuilder != null) {
+                subBuilder.mergeFrom(data_);
+                data_ = subBuilder.buildPartial();
+              }
+              bitField0_ |= 0x00000010;
               break;
             }
           }
@@ -352,8 +378,30 @@ public final class Pipe {
       return pipe.common.Common.Failure.getDefaultInstance();
     }
 
+    public static final int DATA_FIELD_NUMBER = 6;
+    private pipe.filedata.Filedata.FileDataInfo data_;
+    /**
+     * <code>optional .FileDataInfo data = 6;</code>
+     */
+    public boolean hasData() {
+      return ((bitField0_ & 0x00000010) == 0x00000010);
+    }
+    /**
+     * <code>optional .FileDataInfo data = 6;</code>
+     */
+    public pipe.filedata.Filedata.FileDataInfo getData() {
+      return data_;
+    }
+    /**
+     * <code>optional .FileDataInfo data = 6;</code>
+     */
+    public pipe.filedata.Filedata.FileDataInfoOrBuilder getDataOrBuilder() {
+      return data_;
+    }
+
     private void initFields() {
       header_ = pipe.common.Common.Header.getDefaultInstance();
+      data_ = pipe.filedata.Filedata.FileDataInfo.getDefaultInstance();
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -371,6 +419,12 @@ public final class Pipe {
       }
       if (hasErr()) {
         if (!getErr().isInitialized()) {
+          memoizedIsInitialized = 0;
+          return false;
+        }
+      }
+      if (hasData()) {
+        if (!getData().isInitialized()) {
           memoizedIsInitialized = 0;
           return false;
         }
@@ -394,6 +448,9 @@ public final class Pipe {
       }
       if (payloadCase_ == 5) {
         output.writeMessage(5, (pipe.common.Common.Failure) payload_);
+      }
+      if (((bitField0_ & 0x00000010) == 0x00000010)) {
+        output.writeMessage(6, data_);
       }
       getUnknownFields().writeTo(output);
     }
@@ -420,6 +477,10 @@ public final class Pipe {
       if (payloadCase_ == 5) {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(5, (pipe.common.Common.Failure) payload_);
+      }
+      if (((bitField0_ & 0x00000010) == 0x00000010)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(6, data_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -531,6 +592,7 @@ public final class Pipe {
       private void maybeForceBuilderInitialization() {
         if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
           getHeaderFieldBuilder();
+          getDataFieldBuilder();
         }
       }
       private static Builder create() {
@@ -545,6 +607,12 @@ public final class Pipe {
           headerBuilder_.clear();
         }
         bitField0_ = (bitField0_ & ~0x00000001);
+        if (dataBuilder_ == null) {
+          data_ = pipe.filedata.Filedata.FileDataInfo.getDefaultInstance();
+        } else {
+          dataBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000010);
         payloadCase_ = 0;
         payload_ = null;
         return this;
@@ -596,6 +664,14 @@ public final class Pipe {
             result.payload_ = errBuilder_.build();
           }
         }
+        if (((from_bitField0_ & 0x00000010) == 0x00000010)) {
+          to_bitField0_ |= 0x00000010;
+        }
+        if (dataBuilder_ == null) {
+          result.data_ = data_;
+        } else {
+          result.data_ = dataBuilder_.build();
+        }
         result.bitField0_ = to_bitField0_;
         result.payloadCase_ = payloadCase_;
         onBuilt();
@@ -615,6 +691,9 @@ public final class Pipe {
         if (other == routing.Pipe.CommandMessage.getDefaultInstance()) return this;
         if (other.hasHeader()) {
           mergeHeader(other.getHeader());
+        }
+        if (other.hasData()) {
+          mergeData(other.getData());
         }
         switch (other.getPayloadCase()) {
           case PING: {
@@ -650,6 +729,12 @@ public final class Pipe {
         }
         if (hasErr()) {
           if (!getErr().isInitialized()) {
+            
+            return false;
+          }
+        }
+        if (hasData()) {
+          if (!getData().isInitialized()) {
             
             return false;
           }
@@ -1081,6 +1166,122 @@ public final class Pipe {
         return errBuilder_;
       }
 
+      private pipe.filedata.Filedata.FileDataInfo data_ = pipe.filedata.Filedata.FileDataInfo.getDefaultInstance();
+      private com.google.protobuf.SingleFieldBuilder<
+          pipe.filedata.Filedata.FileDataInfo, pipe.filedata.Filedata.FileDataInfo.Builder, pipe.filedata.Filedata.FileDataInfoOrBuilder> dataBuilder_;
+      /**
+       * <code>optional .FileDataInfo data = 6;</code>
+       */
+      public boolean hasData() {
+        return ((bitField0_ & 0x00000010) == 0x00000010);
+      }
+      /**
+       * <code>optional .FileDataInfo data = 6;</code>
+       */
+      public pipe.filedata.Filedata.FileDataInfo getData() {
+        if (dataBuilder_ == null) {
+          return data_;
+        } else {
+          return dataBuilder_.getMessage();
+        }
+      }
+      /**
+       * <code>optional .FileDataInfo data = 6;</code>
+       */
+      public Builder setData(pipe.filedata.Filedata.FileDataInfo value) {
+        if (dataBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          data_ = value;
+          onChanged();
+        } else {
+          dataBuilder_.setMessage(value);
+        }
+        bitField0_ |= 0x00000010;
+        return this;
+      }
+      /**
+       * <code>optional .FileDataInfo data = 6;</code>
+       */
+      public Builder setData(
+          pipe.filedata.Filedata.FileDataInfo.Builder builderForValue) {
+        if (dataBuilder_ == null) {
+          data_ = builderForValue.build();
+          onChanged();
+        } else {
+          dataBuilder_.setMessage(builderForValue.build());
+        }
+        bitField0_ |= 0x00000010;
+        return this;
+      }
+      /**
+       * <code>optional .FileDataInfo data = 6;</code>
+       */
+      public Builder mergeData(pipe.filedata.Filedata.FileDataInfo value) {
+        if (dataBuilder_ == null) {
+          if (((bitField0_ & 0x00000010) == 0x00000010) &&
+              data_ != pipe.filedata.Filedata.FileDataInfo.getDefaultInstance()) {
+            data_ =
+              pipe.filedata.Filedata.FileDataInfo.newBuilder(data_).mergeFrom(value).buildPartial();
+          } else {
+            data_ = value;
+          }
+          onChanged();
+        } else {
+          dataBuilder_.mergeFrom(value);
+        }
+        bitField0_ |= 0x00000010;
+        return this;
+      }
+      /**
+       * <code>optional .FileDataInfo data = 6;</code>
+       */
+      public Builder clearData() {
+        if (dataBuilder_ == null) {
+          data_ = pipe.filedata.Filedata.FileDataInfo.getDefaultInstance();
+          onChanged();
+        } else {
+          dataBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000010);
+        return this;
+      }
+      /**
+       * <code>optional .FileDataInfo data = 6;</code>
+       */
+      public pipe.filedata.Filedata.FileDataInfo.Builder getDataBuilder() {
+        bitField0_ |= 0x00000010;
+        onChanged();
+        return getDataFieldBuilder().getBuilder();
+      }
+      /**
+       * <code>optional .FileDataInfo data = 6;</code>
+       */
+      public pipe.filedata.Filedata.FileDataInfoOrBuilder getDataOrBuilder() {
+        if (dataBuilder_ != null) {
+          return dataBuilder_.getMessageOrBuilder();
+        } else {
+          return data_;
+        }
+      }
+      /**
+       * <code>optional .FileDataInfo data = 6;</code>
+       */
+      private com.google.protobuf.SingleFieldBuilder<
+          pipe.filedata.Filedata.FileDataInfo, pipe.filedata.Filedata.FileDataInfo.Builder, pipe.filedata.Filedata.FileDataInfoOrBuilder> 
+          getDataFieldBuilder() {
+        if (dataBuilder_ == null) {
+          dataBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+              pipe.filedata.Filedata.FileDataInfo, pipe.filedata.Filedata.FileDataInfo.Builder, pipe.filedata.Filedata.FileDataInfoOrBuilder>(
+                  getData(),
+                  getParentForChildren(),
+                  isClean());
+          data_ = null;
+        }
+        return dataBuilder_;
+      }
+
       // @@protoc_insertion_point(builder_scope:CommandMessage)
     }
 
@@ -1106,10 +1307,11 @@ public final class Pipe {
       descriptor;
   static {
     java.lang.String[] descriptorData = {
-      "\n\npipe.proto\032\014common.proto\"p\n\016CommandMes" +
-      "sage\022\027\n\006header\030\001 \002(\0132\007.Header\022\016\n\004ping\030\003 " +
-      "\001(\010H\000\022\021\n\007message\030\004 \001(\tH\000\022\027\n\003err\030\005 \001(\0132\010." +
-      "FailureH\000B\t\n\007payloadB\013\n\007routingH\001"
+      "\n\npipe.proto\032\014common.proto\032\016filedata.pro" +
+      "to\"\215\001\n\016CommandMessage\022\027\n\006header\030\001 \002(\0132\007." +
+      "Header\022\016\n\004ping\030\003 \001(\010H\000\022\021\n\007message\030\004 \001(\tH" +
+      "\000\022\027\n\003err\030\005 \001(\0132\010.FailureH\000\022\033\n\004data\030\006 \001(\013" +
+      "2\r.FileDataInfoB\t\n\007payloadB\013\n\007routingH\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -1123,14 +1325,16 @@ public final class Pipe {
       .internalBuildGeneratedFileFrom(descriptorData,
         new com.google.protobuf.Descriptors.FileDescriptor[] {
           pipe.common.Common.getDescriptor(),
+          pipe.filedata.Filedata.getDescriptor(),
         }, assigner);
     internal_static_CommandMessage_descriptor =
       getDescriptor().getMessageTypes().get(0);
     internal_static_CommandMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_CommandMessage_descriptor,
-        new java.lang.String[] { "Header", "Ping", "Message", "Err", "Payload", });
+        new java.lang.String[] { "Header", "Ping", "Message", "Err", "Data", "Payload", });
     pipe.common.Common.getDescriptor();
+    pipe.filedata.Filedata.getDescriptor();
   }
 
   // @@protoc_insertion_point(outer_class_scope)
