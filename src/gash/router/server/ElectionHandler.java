@@ -161,6 +161,10 @@ public class ElectionHandler {
 
     public synchronized int leaderIsDead()
     {
+        if(leaderNodeId == conf.getNodeId())
+        {
+            numberOfAttempts = 3;
+        }
         return leaderNodeId = -1;
     }
 
