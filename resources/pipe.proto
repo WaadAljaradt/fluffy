@@ -16,5 +16,6 @@ message CommandMessage {
       Failure err = 5;
    }
    optional FileDataInfo data = 6;
-   
+   optional bool retrieve = 7;
+   optional bool save = 8;
 }

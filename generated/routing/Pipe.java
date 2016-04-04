@@ -81,6 +81,24 @@ public final class Pipe {
      * <code>optional .FileDataInfo data = 6;</code>
      */
     pipe.filedata.Filedata.FileDataInfoOrBuilder getDataOrBuilder();
+
+    /**
+     * <code>optional bool retrieve = 7;</code>
+     */
+    boolean hasRetrieve();
+    /**
+     * <code>optional bool retrieve = 7;</code>
+     */
+    boolean getRetrieve();
+
+    /**
+     * <code>optional bool save = 8;</code>
+     */
+    boolean hasSave();
+    /**
+     * <code>optional bool save = 8;</code>
+     */
+    boolean getSave();
   }
   /**
    * Protobuf type {@code CommandMessage}
@@ -182,6 +200,16 @@ public final class Pipe {
                 data_ = subBuilder.buildPartial();
               }
               bitField0_ |= 0x00000010;
+              break;
+            }
+            case 56: {
+              bitField0_ |= 0x00000020;
+              retrieve_ = input.readBool();
+              break;
+            }
+            case 64: {
+              bitField0_ |= 0x00000040;
+              save_ = input.readBool();
               break;
             }
           }
@@ -399,9 +427,41 @@ public final class Pipe {
       return data_;
     }
 
+    public static final int RETRIEVE_FIELD_NUMBER = 7;
+    private boolean retrieve_;
+    /**
+     * <code>optional bool retrieve = 7;</code>
+     */
+    public boolean hasRetrieve() {
+      return ((bitField0_ & 0x00000020) == 0x00000020);
+    }
+    /**
+     * <code>optional bool retrieve = 7;</code>
+     */
+    public boolean getRetrieve() {
+      return retrieve_;
+    }
+
+    public static final int SAVE_FIELD_NUMBER = 8;
+    private boolean save_;
+    /**
+     * <code>optional bool save = 8;</code>
+     */
+    public boolean hasSave() {
+      return ((bitField0_ & 0x00000040) == 0x00000040);
+    }
+    /**
+     * <code>optional bool save = 8;</code>
+     */
+    public boolean getSave() {
+      return save_;
+    }
+
     private void initFields() {
       header_ = pipe.common.Common.Header.getDefaultInstance();
       data_ = pipe.filedata.Filedata.FileDataInfo.getDefaultInstance();
+      retrieve_ = false;
+      save_ = false;
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -452,6 +512,12 @@ public final class Pipe {
       if (((bitField0_ & 0x00000010) == 0x00000010)) {
         output.writeMessage(6, data_);
       }
+      if (((bitField0_ & 0x00000020) == 0x00000020)) {
+        output.writeBool(7, retrieve_);
+      }
+      if (((bitField0_ & 0x00000040) == 0x00000040)) {
+        output.writeBool(8, save_);
+      }
       getUnknownFields().writeTo(output);
     }
 
@@ -481,6 +547,14 @@ public final class Pipe {
       if (((bitField0_ & 0x00000010) == 0x00000010)) {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(6, data_);
+      }
+      if (((bitField0_ & 0x00000020) == 0x00000020)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBoolSize(7, retrieve_);
+      }
+      if (((bitField0_ & 0x00000040) == 0x00000040)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBoolSize(8, save_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -613,6 +687,10 @@ public final class Pipe {
           dataBuilder_.clear();
         }
         bitField0_ = (bitField0_ & ~0x00000010);
+        retrieve_ = false;
+        bitField0_ = (bitField0_ & ~0x00000020);
+        save_ = false;
+        bitField0_ = (bitField0_ & ~0x00000040);
         payloadCase_ = 0;
         payload_ = null;
         return this;
@@ -672,6 +750,14 @@ public final class Pipe {
         } else {
           result.data_ = dataBuilder_.build();
         }
+        if (((from_bitField0_ & 0x00000020) == 0x00000020)) {
+          to_bitField0_ |= 0x00000020;
+        }
+        result.retrieve_ = retrieve_;
+        if (((from_bitField0_ & 0x00000040) == 0x00000040)) {
+          to_bitField0_ |= 0x00000040;
+        }
+        result.save_ = save_;
         result.bitField0_ = to_bitField0_;
         result.payloadCase_ = payloadCase_;
         onBuilt();
@@ -694,6 +780,12 @@ public final class Pipe {
         }
         if (other.hasData()) {
           mergeData(other.getData());
+        }
+        if (other.hasRetrieve()) {
+          setRetrieve(other.getRetrieve());
+        }
+        if (other.hasSave()) {
+          setSave(other.getSave());
         }
         switch (other.getPayloadCase()) {
           case PING: {
@@ -1282,6 +1374,70 @@ public final class Pipe {
         return dataBuilder_;
       }
 
+      private boolean retrieve_ ;
+      /**
+       * <code>optional bool retrieve = 7;</code>
+       */
+      public boolean hasRetrieve() {
+        return ((bitField0_ & 0x00000020) == 0x00000020);
+      }
+      /**
+       * <code>optional bool retrieve = 7;</code>
+       */
+      public boolean getRetrieve() {
+        return retrieve_;
+      }
+      /**
+       * <code>optional bool retrieve = 7;</code>
+       */
+      public Builder setRetrieve(boolean value) {
+        bitField0_ |= 0x00000020;
+        retrieve_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional bool retrieve = 7;</code>
+       */
+      public Builder clearRetrieve() {
+        bitField0_ = (bitField0_ & ~0x00000020);
+        retrieve_ = false;
+        onChanged();
+        return this;
+      }
+
+      private boolean save_ ;
+      /**
+       * <code>optional bool save = 8;</code>
+       */
+      public boolean hasSave() {
+        return ((bitField0_ & 0x00000040) == 0x00000040);
+      }
+      /**
+       * <code>optional bool save = 8;</code>
+       */
+      public boolean getSave() {
+        return save_;
+      }
+      /**
+       * <code>optional bool save = 8;</code>
+       */
+      public Builder setSave(boolean value) {
+        bitField0_ |= 0x00000040;
+        save_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional bool save = 8;</code>
+       */
+      public Builder clearSave() {
+        bitField0_ = (bitField0_ & ~0x00000040);
+        save_ = false;
+        onChanged();
+        return this;
+      }
+
       // @@protoc_insertion_point(builder_scope:CommandMessage)
     }
 
@@ -1308,10 +1464,11 @@ public final class Pipe {
   static {
     java.lang.String[] descriptorData = {
       "\n\npipe.proto\032\014common.proto\032\016filedata.pro" +
-      "to\"\215\001\n\016CommandMessage\022\027\n\006header\030\001 \002(\0132\007." +
+      "to\"\255\001\n\016CommandMessage\022\027\n\006header\030\001 \002(\0132\007." +
       "Header\022\016\n\004ping\030\003 \001(\010H\000\022\021\n\007message\030\004 \001(\tH" +
       "\000\022\027\n\003err\030\005 \001(\0132\010.FailureH\000\022\033\n\004data\030\006 \001(\013" +
-      "2\r.FileDataInfoB\t\n\007payloadB\013\n\007routingH\001"
+      "2\r.FileDataInfo\022\020\n\010retrieve\030\007 \001(\010\022\014\n\004sav" +
+      "e\030\010 \001(\010B\t\n\007payloadB\013\n\007routingH\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -1332,7 +1489,7 @@ public final class Pipe {
     internal_static_CommandMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_CommandMessage_descriptor,
-        new java.lang.String[] { "Header", "Ping", "Message", "Err", "Data", "Payload", });
+        new java.lang.String[] { "Header", "Ping", "Message", "Err", "Data", "Retrieve", "Save", "Payload", });
     pipe.common.Common.getDescriptor();
     pipe.filedata.Filedata.getDescriptor();
   }
