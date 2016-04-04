@@ -5,6 +5,8 @@ import gash.router.server.edges.EdgeMonitor;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 
+import java.util.Random;
+
 /**
  * Created by patel on 3/31/2016.
  */
@@ -29,6 +31,8 @@ public class EdgeCloseListener implements ChannelFutureListener {
             ElectionHandler.getInstance().leaderIsDead();
             System.out.println("The leader is dead!! The leader is dead!!");
         }
+
+        Thread.sleep(new Random().nextInt(10) * 1000);
 
         ElectionHandler.getInstance().checkCurrentState();
     }

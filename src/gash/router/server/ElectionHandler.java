@@ -59,21 +59,22 @@ public class ElectionHandler {
                     startElection();
                 }
             }
-            else
-            {
-                if(leaderNodeId >= 0)
-                    System.out.println("The leader is " + leaderNodeId);
-                else
-                    System.out.println("Elecion in progress");
-            }
+//            else
+//            {
+//                if(leaderNodeId >= 0)
+//                    System.out.println("The leader is " + leaderNodeId);
+//                else
+//                    System.out.println("Elecion in progress");
+//            }
         }
     }
 
-    public void startElection()
+    public synchronized void startElection()
     {
         electionId = System.currentTimeMillis();
 
         getElectionInstance().active = true;
+        getElectionInstance().hasAlreadyVoted = false;
 
         Election.LeaderElection.Builder leaderElectionBuilder = Election.LeaderElection.newBuilder();
         leaderElectionBuilder.setElectionId(electionId);
@@ -158,7 +159,12 @@ public class ElectionHandler {
         return leaderNodeId;
     }
 
-    private CustomElection getElectionInstance() {
+    public synchronized int leaderIsDead()
+    {
+        return leaderNodeId = -1;
+    }
+
+    private synchronized CustomElection getElectionInstance() {
         if (customElection == null) {
             synchronized (syncInt) {
                 if (customElection !=null)
@@ -180,7 +186,7 @@ public class ElectionHandler {
 
     }
 
-    public void handleElection(Work.WorkMessage electionMessage)
+    public synchronized void handleElection(Work.WorkMessage electionMessage)
     {
         try {
 
