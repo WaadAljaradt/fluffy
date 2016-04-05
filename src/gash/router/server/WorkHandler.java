@@ -16,15 +16,24 @@
 package gash.router.server;
 
 import gash.router.server.edges.EdgeMonitor;
+
+import java.nio.ByteBuffer;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.datastax.driver.core.ResultSet;
+import com.google.protobuf.ByteString;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import pipe.common.Common;
 import pipe.common.Common.Failure;
+import pipe.work.Work;
 import pipe.work.Work.Heartbeat;
 import pipe.work.Work.Task;
+import pipe.work.Work.Task.TaskType;
 import pipe.work.Work.WorkMessage;
 import pipe.work.Work.WorkState;
 
@@ -40,6 +49,7 @@ public class WorkHandler extends SimpleChannelInboundHandler<WorkMessage> {
 	protected static Logger logger = LoggerFactory.getLogger("work");
 	protected ServerState state;
 	protected boolean debug = false;
+	CassandraDAO dao = new CassandraDAO();
 
 	public WorkHandler(ServerState state) {
 		if (state != null) {
@@ -89,9 +99,43 @@ public class WorkHandler extends SimpleChannelInboundHandler<WorkMessage> {
 				// PrintUtil.printFailure(err);
 
 			} else if (msg.hasTask()) {
-
+				// Save file to Cassandra
+				
 				Task t = msg.getTask();
+				if (t.getTaskType() == TaskType.SAVEDATATOLEADER) {
+				ByteString data =t.getData();
+				if(data!= null){
+				byte [] savebytes = t.getData().toByteArray();
+				
+				ByteBuffer fileByteBuffer = ByteBuffer.wrap( savebytes);
+				ResultSet insertq = dao.insert(t.getFilename(), fileByteBuffer);
+				if(insertq.wasApplied()){
+					// duplicate to other nodes
+					Work.Task.Builder taskBuilder = Work.Task.newBuilder();
+					taskBuilder.setTaskType(Work.Task.TaskType.SAVEDATATONODE);
+					taskBuilder.setFilename(msg.getTask().getFilename());
+					taskBuilder.setData(msg.getTask().getData());
 
+					Common.Header.Builder hb = Common.Header.newBuilder();
+					hb.setNodeId(state.getConf().getNodeId());
+					hb.setDestination(-1);
+					hb.setTime(System.currentTimeMillis());
+
+					Work.WorkMessage.Builder wb = Work.WorkMessage.newBuilder();
+					wb.setHeader(hb);
+					wb.setTask(taskBuilder);
+
+					wb.setSecret(1000l);
+
+					//EdgeMonitor.sendMessage(ElectionHandler.getInstance().getLeaderNodeId(), wb.build());
+					EdgeMonitor.broadcastMessage(wb.build());
+					
+				}
+				
+				
+				}
+				}
+				
 			} else if (msg.hasState()) {
 
 				WorkState s = msg.getState();
