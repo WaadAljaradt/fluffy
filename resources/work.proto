@@ -20,6 +20,19 @@ message Heartbeat {
 message Task {  
     required int64 series_id = 1;
     required int32 seq_id = 2;
+
+    optional TaskType task_type = 3;
+    optional string filename = 4;
+    optional bytes data = 5;
+
+    enum TaskType {
+          SAVEDATATOLEADER = 1;
+          SAVEDATATONODE = 2;
+          DATASAVEDBYNODE = 3;
+          DATASAVEDBYEVERYONE = 4;
+          DOYOUHAVETHEDATA = 5;
+          FOUNDTHEDATA = 6;
+       }
 }
 
 // These are messages to keep the network running (not to perform work)

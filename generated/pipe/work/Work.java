@@ -1044,6 +1044,38 @@ public final class Work {
      * <code>required int32 seq_id = 2;</code>
      */
     int getSeqId();
+
+    /**
+     * <code>optional .Task.TaskType task_type = 3;</code>
+     */
+    boolean hasTaskType();
+    /**
+     * <code>optional .Task.TaskType task_type = 3;</code>
+     */
+    pipe.work.Work.Task.TaskType getTaskType();
+
+    /**
+     * <code>optional string filename = 4;</code>
+     */
+    boolean hasFilename();
+    /**
+     * <code>optional string filename = 4;</code>
+     */
+    java.lang.String getFilename();
+    /**
+     * <code>optional string filename = 4;</code>
+     */
+    com.google.protobuf.ByteString
+        getFilenameBytes();
+
+    /**
+     * <code>optional bytes data = 5;</code>
+     */
+    boolean hasData();
+    /**
+     * <code>optional bytes data = 5;</code>
+     */
+    com.google.protobuf.ByteString getData();
   }
   /**
    * Protobuf type {@code Task}
@@ -1112,6 +1144,28 @@ public final class Work {
               seqId_ = input.readInt32();
               break;
             }
+            case 24: {
+              int rawValue = input.readEnum();
+              pipe.work.Work.Task.TaskType value = pipe.work.Work.Task.TaskType.valueOf(rawValue);
+              if (value == null) {
+                unknownFields.mergeVarintField(3, rawValue);
+              } else {
+                bitField0_ |= 0x00000004;
+                taskType_ = value;
+              }
+              break;
+            }
+            case 34: {
+              com.google.protobuf.ByteString bs = input.readBytes();
+              bitField0_ |= 0x00000008;
+              filename_ = bs;
+              break;
+            }
+            case 42: {
+              bitField0_ |= 0x00000010;
+              data_ = input.readBytes();
+              break;
+            }
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
@@ -1151,6 +1205,124 @@ public final class Work {
       return PARSER;
     }
 
+    /**
+     * Protobuf enum {@code Task.TaskType}
+     */
+    public enum TaskType
+        implements com.google.protobuf.ProtocolMessageEnum {
+      /**
+       * <code>SAVEDATATOLEADER = 1;</code>
+       */
+      SAVEDATATOLEADER(0, 1),
+      /**
+       * <code>SAVEDATATONODE = 2;</code>
+       */
+      SAVEDATATONODE(1, 2),
+      /**
+       * <code>DATASAVEDBYNODE = 3;</code>
+       */
+      DATASAVEDBYNODE(2, 3),
+      /**
+       * <code>DATASAVEDBYEVERYONE = 4;</code>
+       */
+      DATASAVEDBYEVERYONE(3, 4),
+      /**
+       * <code>DOYOUHAVETHEDATA = 5;</code>
+       */
+      DOYOUHAVETHEDATA(4, 5),
+      /**
+       * <code>FOUNDTHEDATA = 6;</code>
+       */
+      FOUNDTHEDATA(5, 6),
+      ;
+
+      /**
+       * <code>SAVEDATATOLEADER = 1;</code>
+       */
+      public static final int SAVEDATATOLEADER_VALUE = 1;
+      /**
+       * <code>SAVEDATATONODE = 2;</code>
+       */
+      public static final int SAVEDATATONODE_VALUE = 2;
+      /**
+       * <code>DATASAVEDBYNODE = 3;</code>
+       */
+      public static final int DATASAVEDBYNODE_VALUE = 3;
+      /**
+       * <code>DATASAVEDBYEVERYONE = 4;</code>
+       */
+      public static final int DATASAVEDBYEVERYONE_VALUE = 4;
+      /**
+       * <code>DOYOUHAVETHEDATA = 5;</code>
+       */
+      public static final int DOYOUHAVETHEDATA_VALUE = 5;
+      /**
+       * <code>FOUNDTHEDATA = 6;</code>
+       */
+      public static final int FOUNDTHEDATA_VALUE = 6;
+
+
+      public final int getNumber() { return value; }
+
+      public static TaskType valueOf(int value) {
+        switch (value) {
+          case 1: return SAVEDATATOLEADER;
+          case 2: return SAVEDATATONODE;
+          case 3: return DATASAVEDBYNODE;
+          case 4: return DATASAVEDBYEVERYONE;
+          case 5: return DOYOUHAVETHEDATA;
+          case 6: return FOUNDTHEDATA;
+          default: return null;
+        }
+      }
+
+      public static com.google.protobuf.Internal.EnumLiteMap<TaskType>
+          internalGetValueMap() {
+        return internalValueMap;
+      }
+      private static com.google.protobuf.Internal.EnumLiteMap<TaskType>
+          internalValueMap =
+            new com.google.protobuf.Internal.EnumLiteMap<TaskType>() {
+              public TaskType findValueByNumber(int number) {
+                return TaskType.valueOf(number);
+              }
+            };
+
+      public final com.google.protobuf.Descriptors.EnumValueDescriptor
+          getValueDescriptor() {
+        return getDescriptor().getValues().get(index);
+      }
+      public final com.google.protobuf.Descriptors.EnumDescriptor
+          getDescriptorForType() {
+        return getDescriptor();
+      }
+      public static final com.google.protobuf.Descriptors.EnumDescriptor
+          getDescriptor() {
+        return pipe.work.Work.Task.getDescriptor().getEnumTypes().get(0);
+      }
+
+      private static final TaskType[] VALUES = values();
+
+      public static TaskType valueOf(
+          com.google.protobuf.Descriptors.EnumValueDescriptor desc) {
+        if (desc.getType() != getDescriptor()) {
+          throw new java.lang.IllegalArgumentException(
+            "EnumValueDescriptor is not for this type.");
+        }
+        return VALUES[desc.getIndex()];
+      }
+
+      private final int index;
+      private final int value;
+
+      private TaskType(int index, int value) {
+        this.index = index;
+        this.value = value;
+      }
+
+      // @@protoc_insertion_point(enum_scope:Task.TaskType)
+    }
+
     private int bitField0_;
     public static final int SERIES_ID_FIELD_NUMBER = 1;
     private long seriesId_;
@@ -1182,9 +1354,84 @@ public final class Work {
       return seqId_;
     }
 
+    public static final int TASK_TYPE_FIELD_NUMBER = 3;
+    private pipe.work.Work.Task.TaskType taskType_;
+    /**
+     * <code>optional .Task.TaskType task_type = 3;</code>
+     */
+    public boolean hasTaskType() {
+      return ((bitField0_ & 0x00000004) == 0x00000004);
+    }
+    /**
+     * <code>optional .Task.TaskType task_type = 3;</code>
+     */
+    public pipe.work.Work.Task.TaskType getTaskType() {
+      return taskType_;
+    }
+
+    public static final int FILENAME_FIELD_NUMBER = 4;
+    private java.lang.Object filename_;
+    /**
+     * <code>optional string filename = 4;</code>
+     */
+    public boolean hasFilename() {
+      return ((bitField0_ & 0x00000008) == 0x00000008);
+    }
+    /**
+     * <code>optional string filename = 4;</code>
+     */
+    public java.lang.String getFilename() {
+      java.lang.Object ref = filename_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        if (bs.isValidUtf8()) {
+          filename_ = s;
+        }
+        return s;
+      }
+    }
+    /**
+     * <code>optional string filename = 4;</code>
+     */
+    public com.google.protobuf.ByteString
+        getFilenameBytes() {
+      java.lang.Object ref = filename_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        filename_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
+    public static final int DATA_FIELD_NUMBER = 5;
+    private com.google.protobuf.ByteString data_;
+    /**
+     * <code>optional bytes data = 5;</code>
+     */
+    public boolean hasData() {
+      return ((bitField0_ & 0x00000010) == 0x00000010);
+    }
+    /**
+     * <code>optional bytes data = 5;</code>
+     */
+    public com.google.protobuf.ByteString getData() {
+      return data_;
+    }
+
     private void initFields() {
       seriesId_ = 0L;
       seqId_ = 0;
+      taskType_ = pipe.work.Work.Task.TaskType.SAVEDATATOLEADER;
+      filename_ = "";
+      data_ = com.google.protobuf.ByteString.EMPTY;
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -1213,6 +1460,15 @@ public final class Work {
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
         output.writeInt32(2, seqId_);
       }
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+        output.writeEnum(3, taskType_.getNumber());
+      }
+      if (((bitField0_ & 0x00000008) == 0x00000008)) {
+        output.writeBytes(4, getFilenameBytes());
+      }
+      if (((bitField0_ & 0x00000010) == 0x00000010)) {
+        output.writeBytes(5, data_);
+      }
       getUnknownFields().writeTo(output);
     }
 
@@ -1229,6 +1485,18 @@ public final class Work {
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
         size += com.google.protobuf.CodedOutputStream
           .computeInt32Size(2, seqId_);
+      }
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeEnumSize(3, taskType_.getNumber());
+      }
+      if (((bitField0_ & 0x00000008) == 0x00000008)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(4, getFilenameBytes());
+      }
+      if (((bitField0_ & 0x00000010) == 0x00000010)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(5, data_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -1356,6 +1624,12 @@ public final class Work {
         bitField0_ = (bitField0_ & ~0x00000001);
         seqId_ = 0;
         bitField0_ = (bitField0_ & ~0x00000002);
+        taskType_ = pipe.work.Work.Task.TaskType.SAVEDATATOLEADER;
+        bitField0_ = (bitField0_ & ~0x00000004);
+        filename_ = "";
+        bitField0_ = (bitField0_ & ~0x00000008);
+        data_ = com.google.protobuf.ByteString.EMPTY;
+        bitField0_ = (bitField0_ & ~0x00000010);
         return this;
       }
 
@@ -1392,6 +1666,18 @@ public final class Work {
           to_bitField0_ |= 0x00000002;
         }
         result.seqId_ = seqId_;
+        if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
+          to_bitField0_ |= 0x00000004;
+        }
+        result.taskType_ = taskType_;
+        if (((from_bitField0_ & 0x00000008) == 0x00000008)) {
+          to_bitField0_ |= 0x00000008;
+        }
+        result.filename_ = filename_;
+        if (((from_bitField0_ & 0x00000010) == 0x00000010)) {
+          to_bitField0_ |= 0x00000010;
+        }
+        result.data_ = data_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -1413,6 +1699,17 @@ public final class Work {
         }
         if (other.hasSeqId()) {
           setSeqId(other.getSeqId());
+        }
+        if (other.hasTaskType()) {
+          setTaskType(other.getTaskType());
+        }
+        if (other.hasFilename()) {
+          bitField0_ |= 0x00000008;
+          filename_ = other.filename_;
+          onChanged();
+        }
+        if (other.hasData()) {
+          setData(other.getData());
         }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
@@ -1509,6 +1806,152 @@ public final class Work {
       public Builder clearSeqId() {
         bitField0_ = (bitField0_ & ~0x00000002);
         seqId_ = 0;
+        onChanged();
+        return this;
+      }
+
+      private pipe.work.Work.Task.TaskType taskType_ = pipe.work.Work.Task.TaskType.SAVEDATATOLEADER;
+      /**
+       * <code>optional .Task.TaskType task_type = 3;</code>
+       */
+      public boolean hasTaskType() {
+        return ((bitField0_ & 0x00000004) == 0x00000004);
+      }
+      /**
+       * <code>optional .Task.TaskType task_type = 3;</code>
+       */
+      public pipe.work.Work.Task.TaskType getTaskType() {
+        return taskType_;
+      }
+      /**
+       * <code>optional .Task.TaskType task_type = 3;</code>
+       */
+      public Builder setTaskType(pipe.work.Work.Task.TaskType value) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        bitField0_ |= 0x00000004;
+        taskType_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional .Task.TaskType task_type = 3;</code>
+       */
+      public Builder clearTaskType() {
+        bitField0_ = (bitField0_ & ~0x00000004);
+        taskType_ = pipe.work.Work.Task.TaskType.SAVEDATATOLEADER;
+        onChanged();
+        return this;
+      }
+
+      private java.lang.Object filename_ = "";
+      /**
+       * <code>optional string filename = 4;</code>
+       */
+      public boolean hasFilename() {
+        return ((bitField0_ & 0x00000008) == 0x00000008);
+      }
+      /**
+       * <code>optional string filename = 4;</code>
+       */
+      public java.lang.String getFilename() {
+        java.lang.Object ref = filename_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            filename_ = s;
+          }
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>optional string filename = 4;</code>
+       */
+      public com.google.protobuf.ByteString
+          getFilenameBytes() {
+        java.lang.Object ref = filename_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          filename_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>optional string filename = 4;</code>
+       */
+      public Builder setFilename(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000008;
+        filename_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string filename = 4;</code>
+       */
+      public Builder clearFilename() {
+        bitField0_ = (bitField0_ & ~0x00000008);
+        filename_ = getDefaultInstance().getFilename();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string filename = 4;</code>
+       */
+      public Builder setFilenameBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000008;
+        filename_ = value;
+        onChanged();
+        return this;
+      }
+
+      private com.google.protobuf.ByteString data_ = com.google.protobuf.ByteString.EMPTY;
+      /**
+       * <code>optional bytes data = 5;</code>
+       */
+      public boolean hasData() {
+        return ((bitField0_ & 0x00000010) == 0x00000010);
+      }
+      /**
+       * <code>optional bytes data = 5;</code>
+       */
+      public com.google.protobuf.ByteString getData() {
+        return data_;
+      }
+      /**
+       * <code>optional bytes data = 5;</code>
+       */
+      public Builder setData(com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000010;
+        data_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional bytes data = 5;</code>
+       */
+      public Builder clearData() {
+        bitField0_ = (bitField0_ & ~0x00000010);
+        data_ = getDefaultInstance().getData();
         onChanged();
         return this;
       }
@@ -3715,15 +4158,20 @@ public final class Work {
       "\n\nwork.proto\032\014common.proto\032\016election.pro" +
       "to\"0\n\tWorkState\022\020\n\010enqueued\030\001 \002(\005\022\021\n\tpro" +
       "cessed\030\002 \002(\005\"&\n\tHeartbeat\022\031\n\005state\030\001 \002(\013" +
-      "2\n.WorkState\")\n\004Task\022\021\n\tseries_id\030\001 \002(\003\022" +
-      "\016\n\006seq_id\030\002 \002(\005\"\200\002\n\013WorkMessage\022\027\n\006heade" +
-      "r\030\001 \002(\0132\007.Header\022\016\n\006secret\030\002 \002(\003\022\027\n\003err\030" +
-      "\003 \001(\0132\010.FailureH\000\022\016\n\004ping\030\004 \001(\010H\000\022\032\n\004bea" +
-      "t\030\005 \001(\0132\n.HeartbeatH\000\022\025\n\004task\030\006 \001(\0132\005.Ta" +
-      "skH\000\022\033\n\005state\030\007 \001(\0132\n.WorkStateH\000\022\037\n\006lea" +
-      "der\030\010 \001(\0132\r.LeaderStatusH\000\022#\n\010election\030\t",
-      " \001(\0132\017.LeaderElectionH\000B\t\n\007payloadB\r\n\tpi" +
-      "pe.workH\001"
+      "2\n.WorkState\"\371\001\n\004Task\022\021\n\tseries_id\030\001 \002(\003" +
+      "\022\016\n\006seq_id\030\002 \002(\005\022!\n\ttask_type\030\003 \001(\0162\016.Ta" +
+      "sk.TaskType\022\020\n\010filename\030\004 \001(\t\022\014\n\004data\030\005 " +
+      "\001(\014\"\212\001\n\010TaskType\022\024\n\020SAVEDATATOLEADER\020\001\022\022" +
+      "\n\016SAVEDATATONODE\020\002\022\023\n\017DATASAVEDBYNODE\020\003\022" +
+      "\027\n\023DATASAVEDBYEVERYONE\020\004\022\024\n\020DOYOUHAVETHE" +
+      "DATA\020\005\022\020\n\014FOUNDTHEDATA\020\006\"\200\002\n\013WorkMessage",
+      "\022\027\n\006header\030\001 \002(\0132\007.Header\022\016\n\006secret\030\002 \002(" +
+      "\003\022\027\n\003err\030\003 \001(\0132\010.FailureH\000\022\016\n\004ping\030\004 \001(\010" +
+      "H\000\022\032\n\004beat\030\005 \001(\0132\n.HeartbeatH\000\022\025\n\004task\030\006" +
+      " \001(\0132\005.TaskH\000\022\033\n\005state\030\007 \001(\0132\n.WorkState" +
+      "H\000\022\037\n\006leader\030\010 \001(\0132\r.LeaderStatusH\000\022#\n\010e" +
+      "lection\030\t \001(\0132\017.LeaderElectionH\000B\t\n\007payl" +
+      "oadB\r\n\tpipe.workH\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -3756,7 +4204,7 @@ public final class Work {
     internal_static_Task_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_Task_descriptor,
-        new java.lang.String[] { "SeriesId", "SeqId", });
+        new java.lang.String[] { "SeriesId", "SeqId", "TaskType", "Filename", "Data", });
     internal_static_WorkMessage_descriptor =
       getDescriptor().getMessageTypes().get(3);
     internal_static_WorkMessage_fieldAccessorTable = new
