@@ -1,6 +1,5 @@
 package gash.router.server;
 
-import com.sun.javafx.geom.Edge;
 import gash.router.container.RoutingConf;
 import gash.router.server.edges.EdgeInfo;
 import gash.router.server.edges.EdgeMonitor;
