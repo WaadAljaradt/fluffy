@@ -118,9 +118,7 @@ public class CustomElection {
 //            }
 
                 if(hasAlreadyVoted)
-                {
                     return null;
-                }
 
                 boolean isNew = updateCurrent(req);
                 toReturnMessage = castVote(message, isNew);
@@ -180,6 +178,7 @@ public class CustomElection {
 //        }
 
         System.out.println("hasAlreadyVoted "+hasAlreadyVoted);
+        System.out.println("receivedVotes "+receivedVotes+ " req.getHops() "+req.getHops());
 
         if(hasAlreadyVoted )
             return null;
@@ -190,7 +189,8 @@ public class CustomElection {
         Election.LeaderElection.Builder leaderElectionBuilder = Election.LeaderElection.newBuilder();
 
         Common.Header.Builder hb = Common.Header.newBuilder();
-        hb.setNodeId(message.getHeader().getNodeId());
+//        hb.setNodeId(message.getHeader().getNodeId());
+        hb.setNodeId(ElectionHandler.conf.getNodeId());
         hb.setDestination(-1);
         hb.setTime(System.currentTimeMillis());
 

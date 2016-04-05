@@ -20,7 +20,7 @@ public class ElectionHandler {
 
     private Integer syncInt = 0;
 
-    private static RoutingConf conf;
+    public static RoutingConf conf;
 
     private static ElectionHandler electionHandlerInstance;
 
@@ -38,8 +38,7 @@ public class ElectionHandler {
         return electionHandlerInstance;
     }
 
-
-    public void checkCurrentState()
+    public synchronized void checkCurrentState()
     {
         if(numberOfAttempts > 0 && EdgeMonitor.activeConnections.size() > 0)
         {
@@ -51,7 +50,7 @@ public class ElectionHandler {
         {
             if(leaderNodeId < 0 && (customElection == null || !customElection.isElectionInprogress()) && EdgeMonitor.activeConnections.size() > 0)
             {
-                System.out.print("Time for customElection!!!");
+                System.out.println("Time for customElection!!!");
                 // do the leader customElection
                 synchronized (syncInt)
                 {
@@ -211,7 +210,7 @@ public class ElectionHandler {
             else if(electionMessage.getElection().getElectionId() < electionId){	// Means the node received an election which was started before the one the node is processing
 //            logger.info("Received an older election..clearing the previous election as we are considering the oldest election");
                 getElectionInstance().clear();   // Clear the previous election state
-                System.out.println("Clearing own election before older election found");
+                System.out.println("Clearing own election because older election found");
             }
             electionId = electionMessage.getElection().getElectionId();
 
