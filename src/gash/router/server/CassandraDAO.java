@@ -23,10 +23,17 @@ public class CassandraDAO
     {
         connect();
     }
+/*CREATE KEYSPACE files WITH replication = {
+  'class': 'SimpleStrategy',
+  'replication_factor': '1'
+};
 
+CREATE TABLE files ( filename text, file blob, PRIMARY KEY (filename));
+ * 
+ */
     private void connect()
     {
-    	cluster = Cluster.builder().withPort(1602).addContactPoint("127.0.0.1").build();
+    	cluster = Cluster.builder().addContactPoint("127.0.0.1").build();
     	session = cluster.connect("files");
     	
     }
