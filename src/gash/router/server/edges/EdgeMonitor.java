@@ -43,7 +43,7 @@ public class EdgeMonitor implements EdgeListener, Runnable {
 
 	private EdgeList outboundEdges;
 	private EdgeList inboundEdges;
-	private long dt = 5000;
+	private long dt = 3000;
 	private ServerState state;
 	private boolean forever = true;
 
@@ -168,6 +168,7 @@ public class EdgeMonitor implements EdgeListener, Runnable {
             retChannel.closeFuture().addListener(edgeCloseListener);
 		}catch(Exception e){
 
+			e.printStackTrace();
 //            if(e instanceof ConnectException)
 //                System.out.println("Unable to connect to "+ei.getRef());
 //            else

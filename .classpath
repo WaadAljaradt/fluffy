@@ -14,5 +14,12 @@
 			<attribute name="owner.project.facets" value="java"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="/Users/waadjaradat/Downloads/cassandra-driver-core-3.0.0.jar"/>
+	<classpathentry kind="lib" path="/Users/waadjaradat/Downloads/cassandra-driver-extras-3.0.0-alpha5.jar"/>
+	<classpathentry kind="lib" path="/Users/waadjaradat/Downloads/cassandra-driver-mapping-2.1.5.jar"/>
+	<classpathentry kind="lib" path="/Users/waadjaradat/Downloads/guava-16.0.1.jar"/>
+	<classpathentry kind="lib" path="/Users/waadjaradat/Downloads/cassandra-java-driver-2.0.2/cassandra-driver-dse-2.0.2.jar"/>
+	<classpathentry kind="lib" path="/Users/waadjaradat/Downloads/metrics-core-3.0.1.jar"/>
+	<classpathentry kind="lib" path="/Users/waadjaradat/Downloads/org.apache.commons.io.jar"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>
