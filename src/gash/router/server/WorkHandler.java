@@ -39,11 +39,11 @@ import pipe.work.Work.WorkState;
 
 /**
  * The message handler processes json messages that are delimited by a 'newline'
- * 
+ *
  * TODO replace println with logging!
- * 
+ *
  * @author gash
- * 
+ *
  */
 public class WorkHandler extends SimpleChannelInboundHandler<WorkMessage> {
 	protected static Logger logger = LoggerFactory.getLogger("work");
@@ -59,7 +59,7 @@ public class WorkHandler extends SimpleChannelInboundHandler<WorkMessage> {
 
 	/**
 	 * override this method to provide processing behavior. T
-	 * 
+	 *
 	 * @param msg
 	 */
 	public void handleMessage(WorkMessage msg, Channel channel) {
@@ -68,7 +68,7 @@ public class WorkHandler extends SimpleChannelInboundHandler<WorkMessage> {
 			System.out.println("ERROR: Unexpected content - " + msg);
 			return;
 		}
-		
+
 		if (debug)
 			PrintUtil.printWork(msg);
 
@@ -82,7 +82,7 @@ public class WorkHandler extends SimpleChannelInboundHandler<WorkMessage> {
 //					EdgeMonitor.activeConnections.put(msg.getHeader().getNodeId(), null);
 
 				// check leader state
-                ElectionHandler.getInstance().checkCurrentState();
+				ElectionHandler.getInstance().checkCurrentState();
 
 			} else if (msg.hasPing()) {
 
@@ -100,56 +100,96 @@ public class WorkHandler extends SimpleChannelInboundHandler<WorkMessage> {
 
 			} else if (msg.hasTask()) {
 				// Save file to Cassandra
-				
+
 				Task t = msg.getTask();
 				if (t.getTaskType() == TaskType.SAVEDATATOLEADER) {
-				ByteString data =t.getData();
-				if(data!= null){
-				byte [] savebytes = t.getData().toByteArray();
-				
-				ByteBuffer fileByteBuffer = ByteBuffer.wrap( savebytes);
-				ResultSet insertq = dao.insert(t.getFilename(), fileByteBuffer);
-				if(insertq.wasApplied()){
-					// duplicate to other nodes
-					Work.Task.Builder taskBuilder = Work.Task.newBuilder();
-					taskBuilder.setTaskType(Work.Task.TaskType.SAVEDATATONODE);
-					taskBuilder.setFilename(msg.getTask().getFilename());
-					taskBuilder.setData(msg.getTask().getData());
+					ByteString data = t.getData();
+					if(data!= null){
+						byte [] savebytes = t.getData().toByteArray();
 
-					Common.Header.Builder hb = Common.Header.newBuilder();
-					hb.setNodeId(state.getConf().getNodeId());
-					hb.setDestination(-1);
-					hb.setTime(System.currentTimeMillis());
+						ByteBuffer fileByteBuffer = ByteBuffer.wrap( savebytes);
+						ResultSet insertq = dao.insert(t.getFilename(), fileByteBuffer);
+						if(insertq.wasApplied()){
+							// duplicate to other nodes
+							Work.Task.Builder taskBuilder = Work.Task.newBuilder();
+							taskBuilder.setTaskType(Work.Task.TaskType.SAVEDATATONODE);
+							taskBuilder.setFilename(msg.getTask().getFilename());
+							taskBuilder.setData(msg.getTask().getData());
 
-					Work.WorkMessage.Builder wb = Work.WorkMessage.newBuilder();
-					wb.setHeader(hb);
-					wb.setTask(taskBuilder);
+							Common.Header.Builder hb = Common.Header.newBuilder();
+							hb.setNodeId(state.getConf().getNodeId());
+							hb.setDestination(-1);
+							hb.setTime(System.currentTimeMillis());
 
-					wb.setSecret(1000l);
+							Work.WorkMessage.Builder wb = Work.WorkMessage.newBuilder();
+							wb.setHeader(hb);
+							wb.setTask(taskBuilder);
 
-					//EdgeMonitor.sendMessage(ElectionHandler.getInstance().getLeaderNodeId(), wb.build());
-					EdgeMonitor.broadcastMessage(wb.build());
-					
+							wb.setSecret(1000l);
+
+							//EdgeMonitor.sendMessage(ElectionHandler.getInstance().getLeaderNodeId(), wb.build());
+							EdgeMonitor.broadcastMessage(wb.build());
+
+							taskBuilder = Work.Task.newBuilder();
+							taskBuilder.setTaskType(TaskType.DATASAVEDBYEVERYONE);
+
+							hb = Common.Header.newBuilder();
+							hb.setNodeId(state.getConf().getNodeId());
+							hb.setDestination(msg.getHeader().getNodeId());
+							hb.setTime(System.currentTimeMillis());
+
+							wb = Work.WorkMessage.newBuilder();
+							wb.setHeader(hb);
+							wb.setTask(taskBuilder);
+
+							wb.setSecret(1000l);
+
+							EdgeMonitor.sendMessage(msg.getHeader().getNodeId(), wb.build());
+						}
+					}
 				}
-				
-				
+				else if (t.getTaskType() == TaskType.SAVEDATATONODE) {
+
+					ByteString data = t.getData();
+					if (data != null) {
+						byte [] savebytes = t.getData().toByteArray();
+
+						ByteBuffer fileByteBuffer = ByteBuffer.wrap( savebytes);
+						ResultSet insertq = dao.insert(t.getFilename(), fileByteBuffer);
+						if(insertq.wasApplied()) {
+
+							Work.Task.Builder taskBuilder = Work.Task.newBuilder();
+							taskBuilder.setTaskType(TaskType.DATASAVEDBYNODE);
+
+							Common.Header.Builder hb = Common.Header.newBuilder();
+							hb.setNodeId(state.getConf().getNodeId());
+							hb.setDestination(msg.getHeader().getNodeId());
+							hb.setTime(System.currentTimeMillis());
+
+							Work.WorkMessage.Builder wb = Work.WorkMessage.newBuilder();
+							wb.setHeader(hb);
+							wb.setTask(taskBuilder);
+
+							wb.setSecret(1000l);
+
+							EdgeMonitor.sendMessage(msg.getHeader().getNodeId(), wb.build());
+						}
+					}
 				}
-				}
-				
 			} else if (msg.hasState()) {
 
 				WorkState s = msg.getState();
 
 			} else if (msg.hasLeader()) {
 
-                System.out.println("inquiry for leader");
-                ElectionHandler.getInstance().handleLeader(msg);
+				System.out.println("inquiry for leader");
+				ElectionHandler.getInstance().handleLeader(msg);
 
-            } else if (msg.hasElection()) {
+			} else if (msg.hasElection()) {
 
-                ElectionHandler.getInstance().handleElection(msg);
+				ElectionHandler.getInstance().handleElection(msg);
 
-            }
+			}
 
 		} catch (Exception e) {
 			// TODO add logging
@@ -170,7 +210,7 @@ public class WorkHandler extends SimpleChannelInboundHandler<WorkMessage> {
 	 * a message was received from the server. Here we dispatch the message to
 	 * the client's thread pool to minimize the time it takes to process other
 	 * messages.
-	 * 
+	 *
 	 * @param ctx
 	 *            The channel the message was received from
 	 * @param msg
