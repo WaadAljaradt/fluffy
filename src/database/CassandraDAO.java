@@ -1,6 +1,8 @@
 package database;
 
 
+import java.io.File;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import com.datastax.driver.core.Cluster;
@@ -9,7 +11,7 @@ import com.datastax.driver.core.Row;
 import com.datastax.driver.core.Session;
 import com.datastax.driver.core.Statement;
 import com.datastax.driver.core.querybuilder.QueryBuilder;
-
+import org.apache.commons.io.FileUtils;
 public class CassandraDAO
 {
   private Cluster cluster;
@@ -65,9 +67,28 @@ public class CassandraDAO
     }
 
 
-/*
+
         public static void main(String[] args) {
-	Cluster cluster;
+        	CassandraDAO dao = new CassandraDAO();
+        	File file = new File("/Users/waadjaradat/Documents/workspaceNetty/fluffy/runtime/route-1.conf");
+        	ByteBuffer fileByteBuffer;
+			try {
+				fileByteBuffer = ByteBuffer.wrap( FileUtils.readFileToByteArray( file) );
+				dao.insert("test", fileByteBuffer);
+				Row fileRow = dao.get("test");
+				if ( fileRow != null ) {
+			        ByteBuffer fileBytes = fileRow.getBytes( "file" );
+			        System.out.println(fileBytes);
+			       // File f = convertToFile( fileBytes );
+			    }
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+        	
+        	
+        	
+/*	Cluster cluster;
 	Session session;
 	
 	cluster = Cluster.builder().addContactPoint("127.0.0.1").build();
@@ -76,7 +97,7 @@ public class CassandraDAO
 	ResultSet results = session.execute("SELECT * FROM users WHERE lastname='Jones'");
 	for (Row row : results) {
 	System.out.format("%s %d\n", row.getString("firstname"), row.getInt("age"));
-	}
+	}*/
 	
-        }*/
+        }
 }
