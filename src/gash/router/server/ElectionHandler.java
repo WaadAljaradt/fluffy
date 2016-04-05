@@ -79,7 +79,7 @@ public class ElectionHandler {
         leaderElectionBuilder.setElectionId(electionId);
         leaderElectionBuilder.setAction(Election.LeaderElection.ElectAction.DECLAREELECTION);
         leaderElectionBuilder.setCandidateId(conf.getNodeId());
-        leaderElectionBuilder.setExpires(2 * 60 * 1000 + System.currentTimeMillis());
+        leaderElectionBuilder.setExpires(20 * 60 * 1000 + System.currentTimeMillis());
         leaderElectionBuilder.setHops(EdgeMonitor.activeConnections.size());
 
         Common.Header.Builder hb = Common.Header.newBuilder();
