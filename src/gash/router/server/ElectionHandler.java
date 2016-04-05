@@ -49,7 +49,7 @@ public class ElectionHandler {
         }
         else
         {
-            if(leaderNodeId < 0 && (customElection == null || !customElection.isElectionInprogress()))
+            if(leaderNodeId < 0 && (customElection == null || !customElection.isElectionInprogress()) && EdgeMonitor.activeConnections.size() > 0)
             {
                 System.out.print("Time for customElection!!!");
                 // do the leader customElection
