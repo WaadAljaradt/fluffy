@@ -82,6 +82,9 @@ public class InboundWorkerThread extends Thread {
 
                         Work.Task t = workMessage.getTask();
                         if (t.getTaskType() == Work.Task.TaskType.SAVEDATATOLEADER) {
+
+                            System.out.println("Saving to myself and broadcasting it");
+
                             ByteString data = t.getData();
                             if(data!= null){
                                 byte [] savebytes = t.getData().toByteArray();
@@ -94,6 +97,8 @@ public class InboundWorkerThread extends Thread {
                                     taskBuilder.setTaskType(Work.Task.TaskType.SAVEDATATONODE);
                                     taskBuilder.setFilename(workMessage.getTask().getFilename());
                                     taskBuilder.setData(workMessage.getTask().getData());
+                                    taskBuilder.setSeriesId(t.getSeriesId());
+                                    taskBuilder.setSeqId(t.getSeqId());
 
                                     Common.Header.Builder hb = Common.Header.newBuilder();
                                     hb.setNodeId(inboundWorkQueue.getState().getConf().getNodeId());
