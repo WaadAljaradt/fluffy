@@ -99,6 +99,20 @@ public final class Pipe {
      * <code>optional bool save = 8;</code>
      */
     boolean getSave();
+
+    /**
+     * <code>optional string username = 9;</code>
+     */
+    boolean hasUsername();
+    /**
+     * <code>optional string username = 9;</code>
+     */
+    java.lang.String getUsername();
+    /**
+     * <code>optional string username = 9;</code>
+     */
+    com.google.protobuf.ByteString
+        getUsernameBytes();
   }
   /**
    * Protobuf type {@code CommandMessage}
@@ -210,6 +224,12 @@ public final class Pipe {
             case 64: {
               bitField0_ |= 0x00000040;
               save_ = input.readBool();
+              break;
+            }
+            case 74: {
+              com.google.protobuf.ByteString bs = input.readBytes();
+              bitField0_ |= 0x00000080;
+              username_ = bs;
               break;
             }
           }
@@ -457,11 +477,54 @@ public final class Pipe {
       return save_;
     }
 
+    public static final int USERNAME_FIELD_NUMBER = 9;
+    private java.lang.Object username_;
+    /**
+     * <code>optional string username = 9;</code>
+     */
+    public boolean hasUsername() {
+      return ((bitField0_ & 0x00000080) == 0x00000080);
+    }
+    /**
+     * <code>optional string username = 9;</code>
+     */
+    public java.lang.String getUsername() {
+      java.lang.Object ref = username_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        if (bs.isValidUtf8()) {
+          username_ = s;
+        }
+        return s;
+      }
+    }
+    /**
+     * <code>optional string username = 9;</code>
+     */
+    public com.google.protobuf.ByteString
+        getUsernameBytes() {
+      java.lang.Object ref = username_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        username_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
     private void initFields() {
       header_ = pipe.common.Common.Header.getDefaultInstance();
       data_ = pipe.filedata.Filedata.FileDataInfo.getDefaultInstance();
       retrieve_ = false;
       save_ = false;
+      username_ = "";
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -518,6 +581,9 @@ public final class Pipe {
       if (((bitField0_ & 0x00000040) == 0x00000040)) {
         output.writeBool(8, save_);
       }
+      if (((bitField0_ & 0x00000080) == 0x00000080)) {
+        output.writeBytes(9, getUsernameBytes());
+      }
       getUnknownFields().writeTo(output);
     }
 
@@ -555,6 +621,10 @@ public final class Pipe {
       if (((bitField0_ & 0x00000040) == 0x00000040)) {
         size += com.google.protobuf.CodedOutputStream
           .computeBoolSize(8, save_);
+      }
+      if (((bitField0_ & 0x00000080) == 0x00000080)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(9, getUsernameBytes());
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -691,6 +761,8 @@ public final class Pipe {
         bitField0_ = (bitField0_ & ~0x00000020);
         save_ = false;
         bitField0_ = (bitField0_ & ~0x00000040);
+        username_ = "";
+        bitField0_ = (bitField0_ & ~0x00000080);
         payloadCase_ = 0;
         payload_ = null;
         return this;
@@ -758,6 +830,10 @@ public final class Pipe {
           to_bitField0_ |= 0x00000040;
         }
         result.save_ = save_;
+        if (((from_bitField0_ & 0x00000080) == 0x00000080)) {
+          to_bitField0_ |= 0x00000080;
+        }
+        result.username_ = username_;
         result.bitField0_ = to_bitField0_;
         result.payloadCase_ = payloadCase_;
         onBuilt();
@@ -786,6 +862,11 @@ public final class Pipe {
         }
         if (other.hasSave()) {
           setSave(other.getSave());
+        }
+        if (other.hasUsername()) {
+          bitField0_ |= 0x00000080;
+          username_ = other.username_;
+          onChanged();
         }
         switch (other.getPayloadCase()) {
           case PING: {
@@ -1438,6 +1519,82 @@ public final class Pipe {
         return this;
       }
 
+      private java.lang.Object username_ = "";
+      /**
+       * <code>optional string username = 9;</code>
+       */
+      public boolean hasUsername() {
+        return ((bitField0_ & 0x00000080) == 0x00000080);
+      }
+      /**
+       * <code>optional string username = 9;</code>
+       */
+      public java.lang.String getUsername() {
+        java.lang.Object ref = username_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          if (bs.isValidUtf8()) {
+            username_ = s;
+          }
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <code>optional string username = 9;</code>
+       */
+      public com.google.protobuf.ByteString
+          getUsernameBytes() {
+        java.lang.Object ref = username_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          username_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <code>optional string username = 9;</code>
+       */
+      public Builder setUsername(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000080;
+        username_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string username = 9;</code>
+       */
+      public Builder clearUsername() {
+        bitField0_ = (bitField0_ & ~0x00000080);
+        username_ = getDefaultInstance().getUsername();
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional string username = 9;</code>
+       */
+      public Builder setUsernameBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000080;
+        username_ = value;
+        onChanged();
+        return this;
+      }
+
       // @@protoc_insertion_point(builder_scope:CommandMessage)
     }
 
@@ -1464,11 +1621,12 @@ public final class Pipe {
   static {
     java.lang.String[] descriptorData = {
       "\n\npipe.proto\032\014common.proto\032\016filedata.pro" +
-      "to\"\255\001\n\016CommandMessage\022\027\n\006header\030\001 \002(\0132\007." +
+      "to\"\277\001\n\016CommandMessage\022\027\n\006header\030\001 \002(\0132\007." +
       "Header\022\016\n\004ping\030\003 \001(\010H\000\022\021\n\007message\030\004 \001(\tH" +
       "\000\022\027\n\003err\030\005 \001(\0132\010.FailureH\000\022\033\n\004data\030\006 \001(\013" +
       "2\r.FileDataInfo\022\020\n\010retrieve\030\007 \001(\010\022\014\n\004sav" +
-      "e\030\010 \001(\010B\t\n\007payloadB\013\n\007routingH\001"
+      "e\030\010 \001(\010\022\020\n\010username\030\t \001(\tB\t\n\007payloadB\013\n\007" +
+      "routingH\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -1489,7 +1647,7 @@ public final class Pipe {
     internal_static_CommandMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_CommandMessage_descriptor,
-        new java.lang.String[] { "Header", "Ping", "Message", "Err", "Data", "Retrieve", "Save", "Payload", });
+        new java.lang.String[] { "Header", "Ping", "Message", "Err", "Data", "Retrieve", "Save", "Username", "Payload", });
     pipe.common.Common.getDescriptor();
     pipe.filedata.Filedata.getDescriptor();
   }

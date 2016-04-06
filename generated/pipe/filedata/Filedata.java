@@ -34,6 +34,24 @@ public final class Filedata {
      * <code>required bytes data = 2;</code>
      */
     com.google.protobuf.ByteString getData();
+
+    /**
+     * <code>required int64 chunkblockid = 3;</code>
+     */
+    boolean hasChunkblockid();
+    /**
+     * <code>required int64 chunkblockid = 3;</code>
+     */
+    long getChunkblockid();
+
+    /**
+     * <code>required int64 filesize = 4;</code>
+     */
+    boolean hasFilesize();
+    /**
+     * <code>required int64 filesize = 4;</code>
+     */
+    long getFilesize();
   }
   /**
    * Protobuf type {@code FileDataInfo}
@@ -96,6 +114,16 @@ public final class Filedata {
             case 18: {
               bitField0_ |= 0x00000002;
               data_ = input.readBytes();
+              break;
+            }
+            case 24: {
+              bitField0_ |= 0x00000004;
+              chunkblockid_ = input.readInt64();
+              break;
+            }
+            case 32: {
+              bitField0_ |= 0x00000008;
+              filesize_ = input.readInt64();
               break;
             }
           }
@@ -195,9 +223,41 @@ public final class Filedata {
       return data_;
     }
 
+    public static final int CHUNKBLOCKID_FIELD_NUMBER = 3;
+    private long chunkblockid_;
+    /**
+     * <code>required int64 chunkblockid = 3;</code>
+     */
+    public boolean hasChunkblockid() {
+      return ((bitField0_ & 0x00000004) == 0x00000004);
+    }
+    /**
+     * <code>required int64 chunkblockid = 3;</code>
+     */
+    public long getChunkblockid() {
+      return chunkblockid_;
+    }
+
+    public static final int FILESIZE_FIELD_NUMBER = 4;
+    private long filesize_;
+    /**
+     * <code>required int64 filesize = 4;</code>
+     */
+    public boolean hasFilesize() {
+      return ((bitField0_ & 0x00000008) == 0x00000008);
+    }
+    /**
+     * <code>required int64 filesize = 4;</code>
+     */
+    public long getFilesize() {
+      return filesize_;
+    }
+
     private void initFields() {
       filename_ = "";
       data_ = com.google.protobuf.ByteString.EMPTY;
+      chunkblockid_ = 0L;
+      filesize_ = 0L;
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -213,6 +273,14 @@ public final class Filedata {
         memoizedIsInitialized = 0;
         return false;
       }
+      if (!hasChunkblockid()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
+      if (!hasFilesize()) {
+        memoizedIsInitialized = 0;
+        return false;
+      }
       memoizedIsInitialized = 1;
       return true;
     }
@@ -225,6 +293,12 @@ public final class Filedata {
       }
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
         output.writeBytes(2, data_);
+      }
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+        output.writeInt64(3, chunkblockid_);
+      }
+      if (((bitField0_ & 0x00000008) == 0x00000008)) {
+        output.writeInt64(4, filesize_);
       }
       getUnknownFields().writeTo(output);
     }
@@ -242,6 +316,14 @@ public final class Filedata {
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
         size += com.google.protobuf.CodedOutputStream
           .computeBytesSize(2, data_);
+      }
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt64Size(3, chunkblockid_);
+      }
+      if (((bitField0_ & 0x00000008) == 0x00000008)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt64Size(4, filesize_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -364,6 +446,10 @@ public final class Filedata {
         bitField0_ = (bitField0_ & ~0x00000001);
         data_ = com.google.protobuf.ByteString.EMPTY;
         bitField0_ = (bitField0_ & ~0x00000002);
+        chunkblockid_ = 0L;
+        bitField0_ = (bitField0_ & ~0x00000004);
+        filesize_ = 0L;
+        bitField0_ = (bitField0_ & ~0x00000008);
         return this;
       }
 
@@ -400,6 +486,14 @@ public final class Filedata {
           to_bitField0_ |= 0x00000002;
         }
         result.data_ = data_;
+        if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
+          to_bitField0_ |= 0x00000004;
+        }
+        result.chunkblockid_ = chunkblockid_;
+        if (((from_bitField0_ & 0x00000008) == 0x00000008)) {
+          to_bitField0_ |= 0x00000008;
+        }
+        result.filesize_ = filesize_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -424,6 +518,12 @@ public final class Filedata {
         if (other.hasData()) {
           setData(other.getData());
         }
+        if (other.hasChunkblockid()) {
+          setChunkblockid(other.getChunkblockid());
+        }
+        if (other.hasFilesize()) {
+          setFilesize(other.getFilesize());
+        }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
       }
@@ -434,6 +534,14 @@ public final class Filedata {
           return false;
         }
         if (!hasData()) {
+          
+          return false;
+        }
+        if (!hasChunkblockid()) {
+          
+          return false;
+        }
+        if (!hasFilesize()) {
           
           return false;
         }
@@ -570,6 +678,70 @@ public final class Filedata {
         return this;
       }
 
+      private long chunkblockid_ ;
+      /**
+       * <code>required int64 chunkblockid = 3;</code>
+       */
+      public boolean hasChunkblockid() {
+        return ((bitField0_ & 0x00000004) == 0x00000004);
+      }
+      /**
+       * <code>required int64 chunkblockid = 3;</code>
+       */
+      public long getChunkblockid() {
+        return chunkblockid_;
+      }
+      /**
+       * <code>required int64 chunkblockid = 3;</code>
+       */
+      public Builder setChunkblockid(long value) {
+        bitField0_ |= 0x00000004;
+        chunkblockid_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>required int64 chunkblockid = 3;</code>
+       */
+      public Builder clearChunkblockid() {
+        bitField0_ = (bitField0_ & ~0x00000004);
+        chunkblockid_ = 0L;
+        onChanged();
+        return this;
+      }
+
+      private long filesize_ ;
+      /**
+       * <code>required int64 filesize = 4;</code>
+       */
+      public boolean hasFilesize() {
+        return ((bitField0_ & 0x00000008) == 0x00000008);
+      }
+      /**
+       * <code>required int64 filesize = 4;</code>
+       */
+      public long getFilesize() {
+        return filesize_;
+      }
+      /**
+       * <code>required int64 filesize = 4;</code>
+       */
+      public Builder setFilesize(long value) {
+        bitField0_ |= 0x00000008;
+        filesize_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>required int64 filesize = 4;</code>
+       */
+      public Builder clearFilesize() {
+        bitField0_ = (bitField0_ & ~0x00000008);
+        filesize_ = 0L;
+        onChanged();
+        return this;
+      }
+
       // @@protoc_insertion_point(builder_scope:FileDataInfo)
     }
 
@@ -595,8 +767,9 @@ public final class Filedata {
       descriptor;
   static {
     java.lang.String[] descriptorData = {
-      "\n\016filedata.proto\032\014common.proto\".\n\014FileDa" +
-      "taInfo\022\020\n\010filename\030\001 \002(\t\022\014\n\004data\030\002 \002(\014B\021" +
+      "\n\016filedata.proto\032\014common.proto\"V\n\014FileDa" +
+      "taInfo\022\020\n\010filename\030\001 \002(\t\022\014\n\004data\030\002 \002(\014\022\024" +
+      "\n\014chunkblockid\030\003 \002(\003\022\020\n\010filesize\030\004 \002(\003B\021" +
       "\n\rpipe.filedataH\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
@@ -617,7 +790,7 @@ public final class Filedata {
     internal_static_FileDataInfo_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_FileDataInfo_descriptor,
-        new java.lang.String[] { "Filename", "Data", });
+        new java.lang.String[] { "Filename", "Data", "Chunkblockid", "Filesize", });
     pipe.common.Common.getDescriptor();
   }
 
