@@ -91,6 +91,39 @@ public class InboundCommandThread extends Thread {
                         if(ElectionHandler.getInstance().getLeaderNodeId() == ElectionHandler.conf.getNodeId())
                         {
                             // you are the leader save it and send it to all nodes
+
+                            ByteString data = commandMessage.getData().getData();
+                            if(data!= null){
+                                byte [] savebytes = commandMessage.getData().getData().toByteArray();
+
+                                ByteBuffer fileByteBuffer = ByteBuffer.wrap( savebytes);
+                                ResultSet insertq = dao.insert(commandMessage.getData().getFilename(), fileByteBuffer);
+                                if(insertq.wasApplied()){
+                                    // duplicate to other nodes
+                                    Work.Task.Builder taskBuilder = Work.Task.newBuilder();
+                                    taskBuilder.setTaskType(Work.Task.TaskType.SAVEDATATONODE);
+                                    taskBuilder.setFilename(commandMessage.getData().getFilename());
+                                    taskBuilder.setData(commandMessage.getData().getData());
+                                    taskBuilder.setSeqId(0);
+                                    taskBuilder.setSeriesId(System.currentTimeMillis());
+
+                                    Common.Header.Builder hb = Common.Header.newBuilder();
+                                    hb.setNodeId(inboundCommandQueue.getState().getConf().getNodeId());
+                                    hb.setDestination(-1);
+                                    hb.setTime(System.currentTimeMillis());
+
+                                    Work.WorkMessage.Builder wb = Work.WorkMessage.newBuilder();
+                                    wb.setHeader(hb);
+                                    wb.setTask(taskBuilder);
+
+                                    wb.setSecret(1000l);
+
+                                    //EdgeMonitor.sendMessage(ElectionHandler.getInstance().getLeaderNodeId(), wb.build());
+                                    EdgeMonitor.broadcastMessage(wb.build());
+
+                                    //TODO acknowledge the client
+                                }
+                            }
                         }
                         else
                         {
@@ -100,7 +133,6 @@ public class InboundCommandThread extends Thread {
                             taskBuilder.setData(commandMessage.getData().getData());
                             taskBuilder.setSeqId(0);
                             taskBuilder.setSeriesId(System.currentTimeMillis());
-
 
                             Common.Header.Builder hb = Common.Header.newBuilder();
                             hb.setNodeId(inboundCommandQueue.getState().getConf().getNodeId());

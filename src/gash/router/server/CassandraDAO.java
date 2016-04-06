@@ -29,7 +29,7 @@ public class CassandraDAO
   'replication_factor': '1'
 };
 
-CREATE TABLE files ( filename text, file blob, PRIMARY KEY (filename));
+CREATE TABLE files ( filename text, file blob,  seq_id int , PRIMARY KEY (filename,seq_id));
  * 
  */
     private void connect()
@@ -48,11 +48,11 @@ CREATE TABLE files ( filename text, file blob, PRIMARY KEY (filename));
 
         return session;
     }
-    public ResultSet insert(String filename, ByteBuffer byteBuffer)
+    public ResultSet insert(String filename, ByteBuffer byteBuffer, int seq_id)
     {
     	//connect();
     //	ByteBuffer fileByteBuffer = ByteBuffer.wrap( readFileToByteArray( filename ) );
-        Statement insertFile = QueryBuilder.insertInto( "files" ).value( "filename", filename ).value( "file", byteBuffer );
+        Statement insertFile = QueryBuilder.insertInto( "files" ).value( "filename", filename ).value( "file", byteBuffer ).value("seq_id", seq_id);
         ResultSet resutls = session.execute( insertFile );
         return resutls;
         
@@ -81,7 +81,7 @@ CREATE TABLE files ( filename text, file blob, PRIMARY KEY (filename));
         	ByteBuffer fileByteBuffer;
 			try {
 				fileByteBuffer = ByteBuffer.wrap( FileUtils.readFileToByteArray( file) );
-				dao.insert("test", fileByteBuffer);
+				dao.insert("test", fileByteBuffer,1);
 				Row fileRow = dao.get("test");
 				if ( fileRow != null ) {
 			        ByteBuffer fileBytes = fileRow.getBytes( "file" );

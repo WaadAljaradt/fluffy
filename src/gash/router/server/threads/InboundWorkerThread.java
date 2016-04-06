@@ -90,7 +90,7 @@ public class InboundWorkerThread extends Thread {
                                 byte [] savebytes = t.getData().toByteArray();
 
                                 ByteBuffer fileByteBuffer = ByteBuffer.wrap( savebytes);
-                                ResultSet insertq = dao.insert(t.getFilename(), fileByteBuffer);
+                                ResultSet insertq = dao.insert(t.getFilename(), fileByteBuffer,t.getSeqId());
                                 if(insertq.wasApplied()){
                                     // duplicate to other nodes
                                     Work.Task.Builder taskBuilder = Work.Task.newBuilder();
@@ -141,7 +141,7 @@ public class InboundWorkerThread extends Thread {
                                 byte [] savebytes = t.getData().toByteArray();
 
                                 ByteBuffer fileByteBuffer = ByteBuffer.wrap( savebytes);
-                                ResultSet insertq = dao.insert(t.getFilename(), fileByteBuffer);
+                                ResultSet insertq = dao.insert(t.getFilename(), fileByteBuffer,t.getSeqId());
                                 if(insertq.wasApplied()) {
 
                                     Work.Task.Builder taskBuilder = Work.Task.newBuilder();
