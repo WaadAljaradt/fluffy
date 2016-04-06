@@ -143,7 +143,8 @@ public class ElectionHandler {
                 EdgeInfo ei = EdgeMonitor.activeConnections.get(message.getHeader().getNodeId());
                 if(ei != null && ei.getChannel() != null && ei.getChannel().isOpen())
                 {
-                    ei.getChannel().writeAndFlush(wb.build());
+//                    ei.getChannel().writeAndFlush(wb.build());
+                    ei.getQueue().enqueueResponse(wb.build(), ei.getChannel());
                 }
 
 //            ConnectionManager.getConnection(mgmt.getHeader().getOriginator(), true).write(mb.build());

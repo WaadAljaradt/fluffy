@@ -15,10 +15,15 @@
  */
 package gash.router.server;
 
+import com.sun.corba.se.spi.activation.Server;
 import gash.router.server.edges.EdgeMonitor;
 
 import java.nio.ByteBuffer;
 
+import gash.router.server.queue.ChannelQueue;
+import gash.router.server.queue.InboundWorkerQueue;
+import gash.router.server.queue.OutboundWorkerQueue;
+import gash.router.server.queue.WorkerQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,7 +54,9 @@ public class WorkHandler extends SimpleChannelInboundHandler<WorkMessage> {
 	protected static Logger logger = LoggerFactory.getLogger("work");
 	protected ServerState state;
 	protected boolean debug = false;
-	CassandraDAO dao = new CassandraDAO();
+//	CassandraDAO dao = new CassandraDAO();
+
+	private InboundWorkerQueue queue;
 
 	public WorkHandler(ServerState state) {
 		if (state != null) {
@@ -101,81 +108,81 @@ public class WorkHandler extends SimpleChannelInboundHandler<WorkMessage> {
 			} else if (msg.hasTask()) {
 				// Save file to Cassandra
 
-				Task t = msg.getTask();
-				if (t.getTaskType() == TaskType.SAVEDATATOLEADER) {
-					ByteString data = t.getData();
-					if(data!= null){
-						byte [] savebytes = t.getData().toByteArray();
-
-						ByteBuffer fileByteBuffer = ByteBuffer.wrap( savebytes);
-						ResultSet insertq = dao.insert(t.getFilename(), fileByteBuffer);
-						if(insertq.wasApplied()){
-							// duplicate to other nodes
-							Work.Task.Builder taskBuilder = Work.Task.newBuilder();
-							taskBuilder.setTaskType(Work.Task.TaskType.SAVEDATATONODE);
-							taskBuilder.setFilename(msg.getTask().getFilename());
-							taskBuilder.setData(msg.getTask().getData());
-
-							Common.Header.Builder hb = Common.Header.newBuilder();
-							hb.setNodeId(state.getConf().getNodeId());
-							hb.setDestination(-1);
-							hb.setTime(System.currentTimeMillis());
-
-							Work.WorkMessage.Builder wb = Work.WorkMessage.newBuilder();
-							wb.setHeader(hb);
-							wb.setTask(taskBuilder);
-
-							wb.setSecret(1000l);
-
-							//EdgeMonitor.sendMessage(ElectionHandler.getInstance().getLeaderNodeId(), wb.build());
-							EdgeMonitor.broadcastMessage(wb.build());
-
-							taskBuilder = Work.Task.newBuilder();
-							taskBuilder.setTaskType(TaskType.DATASAVEDBYEVERYONE);
-
-							hb = Common.Header.newBuilder();
-							hb.setNodeId(state.getConf().getNodeId());
-							hb.setDestination(msg.getHeader().getNodeId());
-							hb.setTime(System.currentTimeMillis());
-
-							wb = Work.WorkMessage.newBuilder();
-							wb.setHeader(hb);
-							wb.setTask(taskBuilder);
-
-							wb.setSecret(1000l);
-
-							EdgeMonitor.sendMessage(msg.getHeader().getNodeId(), wb.build());
-						}
-					}
-				}
-				else if (t.getTaskType() == TaskType.SAVEDATATONODE) {
-
-					ByteString data = t.getData();
-					if (data != null) {
-						byte [] savebytes = t.getData().toByteArray();
-
-						ByteBuffer fileByteBuffer = ByteBuffer.wrap( savebytes);
-						ResultSet insertq = dao.insert(t.getFilename(), fileByteBuffer);
-						if(insertq.wasApplied()) {
-
-							Work.Task.Builder taskBuilder = Work.Task.newBuilder();
-							taskBuilder.setTaskType(TaskType.DATASAVEDBYNODE);
-
-							Common.Header.Builder hb = Common.Header.newBuilder();
-							hb.setNodeId(state.getConf().getNodeId());
-							hb.setDestination(msg.getHeader().getNodeId());
-							hb.setTime(System.currentTimeMillis());
-
-							Work.WorkMessage.Builder wb = Work.WorkMessage.newBuilder();
-							wb.setHeader(hb);
-							wb.setTask(taskBuilder);
-
-							wb.setSecret(1000l);
-
-							EdgeMonitor.sendMessage(msg.getHeader().getNodeId(), wb.build());
-						}
-					}
-				}
+//				Task t = msg.getTask();
+//				if (t.getTaskType() == TaskType.SAVEDATATOLEADER) {
+//					ByteString data = t.getData();
+//					if(data!= null){
+//						byte [] savebytes = t.getData().toByteArray();
+//
+//						ByteBuffer fileByteBuffer = ByteBuffer.wrap( savebytes);
+//						ResultSet insertq = dao.insert(t.getFilename(), fileByteBuffer);
+//						if(insertq.wasApplied()){
+//							// duplicate to other nodes
+//							Work.Task.Builder taskBuilder = Work.Task.newBuilder();
+//							taskBuilder.setTaskType(Work.Task.TaskType.SAVEDATATONODE);
+//							taskBuilder.setFilename(msg.getTask().getFilename());
+//							taskBuilder.setData(msg.getTask().getData());
+//
+//							Common.Header.Builder hb = Common.Header.newBuilder();
+//							hb.setNodeId(state.getConf().getNodeId());
+//							hb.setDestination(-1);
+//							hb.setTime(System.currentTimeMillis());
+//
+//							Work.WorkMessage.Builder wb = Work.WorkMessage.newBuilder();
+//							wb.setHeader(hb);
+//							wb.setTask(taskBuilder);
+//
+//							wb.setSecret(1000l);
+//
+//							//EdgeMonitor.sendMessage(ElectionHandler.getInstance().getLeaderNodeId(), wb.build());
+//							EdgeMonitor.broadcastMessage(wb.build());
+//
+//							taskBuilder = Work.Task.newBuilder();
+//							taskBuilder.setTaskType(TaskType.DATASAVEDBYEVERYONE);
+//
+//							hb = Common.Header.newBuilder();
+//							hb.setNodeId(state.getConf().getNodeId());
+//							hb.setDestination(msg.getHeader().getNodeId());
+//							hb.setTime(System.currentTimeMillis());
+//
+//							wb = Work.WorkMessage.newBuilder();
+//							wb.setHeader(hb);
+//							wb.setTask(taskBuilder);
+//
+//							wb.setSecret(1000l);
+//
+//							EdgeMonitor.sendMessage(msg.getHeader().getNodeId(), wb.build());
+//						}
+//					}
+//				}
+//				else if (t.getTaskType() == TaskType.SAVEDATATONODE) {
+//
+//					ByteString data = t.getData();
+//					if (data != null) {
+//						byte [] savebytes = t.getData().toByteArray();
+//
+//						ByteBuffer fileByteBuffer = ByteBuffer.wrap( savebytes);
+//						ResultSet insertq = dao.insert(t.getFilename(), fileByteBuffer);
+//						if(insertq.wasApplied()) {
+//
+//							Work.Task.Builder taskBuilder = Work.Task.newBuilder();
+//							taskBuilder.setTaskType(TaskType.DATASAVEDBYNODE);
+//
+//							Common.Header.Builder hb = Common.Header.newBuilder();
+//							hb.setNodeId(state.getConf().getNodeId());
+//							hb.setDestination(msg.getHeader().getNodeId());
+//							hb.setTime(System.currentTimeMillis());
+//
+//							Work.WorkMessage.Builder wb = Work.WorkMessage.newBuilder();
+//							wb.setHeader(hb);
+//							wb.setTask(taskBuilder);
+//
+//							wb.setSecret(1000l);
+//
+//							EdgeMonitor.sendMessage(msg.getHeader().getNodeId(), wb.build());
+//						}
+//					}
+//				}
 			} else if (msg.hasState()) {
 
 				WorkState s = msg.getState();
@@ -218,7 +225,8 @@ public class WorkHandler extends SimpleChannelInboundHandler<WorkMessage> {
 	 */
 	@Override
 	protected void channelRead0(ChannelHandlerContext ctx, WorkMessage msg) throws Exception {
-		handleMessage(msg, ctx.channel());
+//		handleMessage(msg, ctx.channel());
+		getQueueInstance(ctx, state).enqueueRequest(msg, ctx.channel());
 	}
 
 	@Override
@@ -227,4 +235,17 @@ public class WorkHandler extends SimpleChannelInboundHandler<WorkMessage> {
 		ctx.close();
 	}
 
+	private ChannelQueue getQueueInstance(ChannelHandlerContext ctx, ServerState state)
+	{
+		if (queue != null)
+			return queue;
+		else {
+//			queue = new WorkerQueue(ctx.channel(), state);
+			queue = new InboundWorkerQueue(ctx.channel(), state);
+			// on close remove from queue
+//			channel.closeFuture().addListener(new ConnectionCloseListener(queue));
+		}
+
+		return queue;
+	}
 }
