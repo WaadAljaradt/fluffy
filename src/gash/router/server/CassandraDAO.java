@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import com.datastax.driver.core.Cluster;
+import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
 import com.datastax.driver.core.Session;
 import com.datastax.driver.core.Statement;
@@ -47,17 +48,18 @@ CREATE TABLE files ( filename text, file blob, PRIMARY KEY (filename));
 
         return session;
     }
-    private void insert(String filename, ByteBuffer byteBuffer)
+    public ResultSet insert(String filename, ByteBuffer byteBuffer)
     {
     	//connect();
     //	ByteBuffer fileByteBuffer = ByteBuffer.wrap( readFileToByteArray( filename ) );
         Statement insertFile = QueryBuilder.insertInto( "files" ).value( "filename", filename ).value( "file", byteBuffer );
-        session.execute( insertFile );
+        ResultSet resutls = session.execute( insertFile );
+        return resutls;
         
     //	session.execute("INSERT INTO users (key,value) VALUES ('"+key+"', '"+value+"')");
     }
     
-    private Row get(String filename)
+    public Row get(String filename)
     {
     	Statement readFile = QueryBuilder.select( "file" ).from( "files" ).where( QueryBuilder.eq( "filename", filename ) );
     Row fileRow = session.execute( readFile ).one();

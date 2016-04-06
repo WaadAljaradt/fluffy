@@ -16,6 +16,8 @@
 package gash.router.server.edges;
 
 import gash.router.server.EdgeCloseListener;
+import gash.router.server.queue.OutboundWorkerQueue;
+import gash.router.server.queue.WorkerQueue;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import org.slf4j.Logger;
@@ -43,7 +45,7 @@ public class EdgeMonitor implements EdgeListener, Runnable {
 
 	private EdgeList outboundEdges;
 	private EdgeList inboundEdges;
-	private long dt = 3000;
+	private long dt = 1000;
 	private ServerState state;
 	private boolean forever = true;
 
@@ -108,7 +110,8 @@ public class EdgeMonitor implements EdgeListener, Runnable {
 //						System.out.print("open "+ei.getChannel().isOpen()+" writable "+ei.getChannel().isWritable());
                             if(ei.getChannel().isOpen()) {
                                 WorkMessage wm = createHB(ei);
-                                ei.getChannel().writeAndFlush(wm);
+//                                ei.getChannel().writeAndFlush(wm);
+								ei.getQueue().enqueueResponse(wm, ei.getChannel());
                             }
                             else
                             {
@@ -127,6 +130,8 @@ public class EdgeMonitor implements EdgeListener, Runnable {
 						}
                         else
                         {
+//							ei.setQueue(WorkerQueue.getInstance(channel,state));
+							ei.setQueue(new OutboundWorkerQueue(channel,state));
                             activeConnections.put(ei.getRef(), ei);
                             System.out.println("Connected to Channel with host " + ei.getHost());
                         }
@@ -168,7 +173,6 @@ public class EdgeMonitor implements EdgeListener, Runnable {
             retChannel.closeFuture().addListener(edgeCloseListener);
 		}catch(Exception e){
 
-			e.printStackTrace();
 //            if(e instanceof ConnectException)
 //                System.out.println("Unable to connect to "+ei.getRef());
 //            else
@@ -186,8 +190,15 @@ public class EdgeMonitor implements EdgeListener, Runnable {
 
         for(EdgeInfo ei : activeConnections.values())
         {
-            if(ei.isActive() && ei.getChannel() != null && ei.getChannel().isOpen())
-                ei.getChannel().writeAndFlush(message);
+//            if(ei.isActive() && ei.getChannel() != null && ei.getChannel().isOpen())
+//                ei.getChannel().writeAndFlush(message);
+//			WorkerQueue queue = ((WorkerQueue)ei.getQueue());
+			OutboundWorkerQueue queue = ei.getQueue();
+
+			if(queue != null && queue.getOutboundQueue() != null)
+			{
+				queue.enqueueResponse(message, ei.getChannel());
+			}
         }
     }
 
@@ -195,12 +206,31 @@ public class EdgeMonitor implements EdgeListener, Runnable {
     {
         try {
 
-            if(workMessage == null)
-                return;
+            if(workMessage == null) {
+				System.out.println("Trying to send empty message");
+				return;
+			}
 
-            Channel ch = activeConnections.get(nodeId).getChannel();
-            if(ch.isOpen())
-                ch.writeAndFlush(workMessage);
+			if(activeConnections.get(nodeId) == null) {
+				System.out.println("No edgeInfo for this node id");
+				return;
+			}
+
+			if(activeConnections.get(nodeId).getChannel() == null) {
+				System.out.println("No open channel for this node id");
+				return;
+			}
+
+			OutboundWorkerQueue queue = activeConnections.get(nodeId).getQueue();
+
+			if(queue != null && queue.getOutboundQueue() != null)
+			{
+				queue.enqueueResponse(workMessage, activeConnections.get(nodeId).getChannel());
+			}
+
+//            Channel ch = activeConnections.get(nodeId).getChannel();
+//            if(ch.isOpen())
+//                ch.writeAndFlush(workMessage);
 
         }catch (Exception e)
         {

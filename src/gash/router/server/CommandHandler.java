@@ -18,6 +18,10 @@ package gash.router.server;
 import java.io.File;
 import java.io.FileOutputStream;
 
+import gash.router.server.edges.EdgeMonitor;
+import gash.router.server.queue.ChannelQueue;
+import gash.router.server.queue.InboundCommandQueue;
+import gash.router.server.queue.InboundWorkerQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +29,10 @@ import gash.router.container.RoutingConf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import pipe.common.Common;
 import pipe.common.Common.Failure;
+import pipe.election.Election;
+import pipe.work.Work;
 import routing.Pipe.CommandMessage;
 
 /**
@@ -39,10 +46,16 @@ import routing.Pipe.CommandMessage;
 public class CommandHandler extends SimpleChannelInboundHandler<CommandMessage> {
 	protected static Logger logger = LoggerFactory.getLogger("cmd");
 	protected RoutingConf conf;
+	private ServerState state;
+
+	private InboundCommandQueue queue;
 
 	public CommandHandler(RoutingConf conf) {
 		if (conf != null) {
 			this.conf = conf;
+
+			state = new ServerState();
+			state.setConf(conf);
 		}
 	}
 
@@ -68,19 +81,72 @@ public class CommandHandler extends SimpleChannelInboundHandler<CommandMessage> 
 				logger.info("ping from " + msg.getHeader().getNodeId());
 			} else if (msg.hasMessage()) {
 				logger.info(msg.getMessage());
-			} else {
-			}
+			} else if (msg.hasRetrieve()) {
 
-			if (msg.hasData()) {
-				if (msg.getData().hasFilename()) {
-					File file = new File(msg.getData().getFilename());
-					if (msg.hasData()) {
-						FileOutputStream fos = new FileOutputStream(file);
-						byte[] filedata = msg.getData().getData().toByteArray();
-						fos.write(filedata, 0, filedata.length);
-						fos.close();
-					}
+                boolean hasSavedData = false;
+
+                if(hasSavedData)
+                {
+                    //is saved in local database
+                }
+                else
+                {
+                    Work.WorkState.Builder sb = Work.WorkState.newBuilder();
+                    sb.setEnqueued(-1);
+                    sb.setProcessed(-1);
+
+                    pipe.election.Election.LeaderStatus.Builder leaderStatusBuilder = pipe.election.Election.LeaderStatus.newBuilder();
+                    leaderStatusBuilder.setAction(pipe.election.Election.LeaderStatus.LeaderQuery.WHOISTHELEADER);
+
+                    Common.Header.Builder hb = Common.Header.newBuilder();
+                    hb.setNodeId(conf.getNodeId());
+                    hb.setDestination(-1);
+                    hb.setTime(System.currentTimeMillis());
+
+                    Work.WorkMessage.Builder wb = Work.WorkMessage.newBuilder();
+                    wb.setHeader(hb);
+                    wb.setLeader(leaderStatusBuilder);
+
+                    wb.setSecret(1000l);
+
+                    EdgeMonitor.broadcastMessage(wb.build());
+                }
+            }
+            else if (msg.hasData()) {
+
+				if(ElectionHandler.getInstance().getLeaderNodeId() == ElectionHandler.conf.getNodeId())
+				{
+					// you are the leader save it and send it to all nodes
 				}
+				else
+				{
+					Work.Task.Builder taskBuilder = Work.Task.newBuilder();
+					taskBuilder.setTaskType(Work.Task.TaskType.SAVEDATATOLEADER);
+					taskBuilder.setFilename(msg.getData().getFilename());
+					taskBuilder.setData(msg.getData().getData());
+
+					Common.Header.Builder hb = Common.Header.newBuilder();
+					hb.setNodeId(conf.getNodeId());
+					hb.setDestination(-1);
+					hb.setTime(System.currentTimeMillis());
+
+					Work.WorkMessage.Builder wb = Work.WorkMessage.newBuilder();
+					wb.setHeader(hb);
+					wb.setTask(taskBuilder);
+
+					wb.setSecret(1000l);
+
+					EdgeMonitor.sendMessage(ElectionHandler.getInstance().getLeaderNodeId(), wb.build());
+				}
+//                    if (msg.getData().hasFilename()) {
+//                        File file = new File(msg.getData().getFilename());
+//                        if (msg.hasData()) {
+//                            FileOutputStream fos = new FileOutputStream(file);
+//                            byte[] filedata = msg.getData().getData().toByteArray();
+//                            fos.write(filedata, 0, filedata.length);
+//                            fos.close();
+//                        }
+//                    }
 			}
 
 		} catch (Exception e) {
@@ -109,7 +175,8 @@ public class CommandHandler extends SimpleChannelInboundHandler<CommandMessage> 
 	 */
 	@Override
 	protected void channelRead0(ChannelHandlerContext ctx, CommandMessage msg) throws Exception {
-		handleMessage(msg, ctx.channel());
+//		handleMessage(msg, ctx.channel());
+		getQueueInstance(ctx, state).enqueueRequest(msg, ctx.channel());
 	}
 
 	@Override
@@ -118,4 +185,17 @@ public class CommandHandler extends SimpleChannelInboundHandler<CommandMessage> 
 		ctx.close();
 	}
 
+	private ChannelQueue getQueueInstance(ChannelHandlerContext ctx, ServerState state)
+	{
+		if (queue != null)
+			return queue;
+		else {
+//			queue = new WorkerQueue(ctx.channel(), state);
+			queue = new InboundCommandQueue(ctx.channel(), state);
+			// on close remove from queue
+//			channel.closeFuture().addListener(new ConnectionCloseListener(queue));
+		}
+
+		return queue;
+	}
 }
