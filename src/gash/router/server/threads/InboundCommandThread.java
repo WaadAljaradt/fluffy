@@ -98,6 +98,8 @@ public class InboundCommandThread extends Thread {
                             taskBuilder.setTaskType(Work.Task.TaskType.SAVEDATATOLEADER);
                             taskBuilder.setFilename(commandMessage.getData().getFilename());
                             taskBuilder.setData(commandMessage.getData().getData());
+                            taskBuilder.setSeqId(0);
+                            taskBuilder.setSeriesId(System.currentTimeMillis());
 
                             Common.Header.Builder hb = Common.Header.newBuilder();
                             hb.setNodeId(inboundCommandQueue.getState().getConf().getNodeId());
