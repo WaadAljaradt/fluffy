@@ -64,12 +64,6 @@ public class InboundWorkerThread extends Thread {
 
                         System.out.println("Heartbeat from "+workMessage.getHeader().getNodeId());
 
-//                        logger.info("heartbeat from " + req.getHeader().getNodeId());
-//                        EdgeMonitor emon = MessageServer.getEmon();
-//                        EdgeInfo ei = new EdgeInfo(req.getHeader().getNodeId(),"",req.getHeader().getSource());
-//                        ei.setChannel(sq.getChannel());
-//                        emon.addToInbound(ei);
-//                        RaftManager.getInstance().assessCurrentState();
                         ElectionHandler.getInstance().checkCurrentState();
 
                     } else if (workMessage.hasPing()) {
@@ -80,73 +74,11 @@ public class InboundWorkerThread extends Thread {
                         rb.setPing(true);
                         inboundWorkQueue.enqueueResponse(rb.build(), inboundWorkQueue.getChannel());
 
-//                        logger.info("ping from <node,host> : <" + req.getHeader().getNodeId() + ", " + req.getHeader().getSourceHost()+">");
-//                        PrintUtil.printWork(req);
-//                        if(req.getHeader().getDestination() == sq.state.getConf().getNodeId()){
-//                            //handle message by self
-//                            logger.info("Ping for me: " + " from "+ req.getHeader().getSourceHost());
-//
-//                            Work.WorkRequest.Builder rb = Work.WorkRequest.newBuilder();
-//
-//                            Common.Header.Builder hb = Common.Header.newBuilder();
-//                            hb.setNodeId(sq.state.getConf().getNodeId());
-//                            hb.setTime(System.currentTimeMillis());
-//                            hb.setDestination(Integer.parseInt(req.getHeader().getSourceHost().substring(req.getHeader().getSourceHost().lastIndexOf('_')+1)));
-//                            hb.setSourceHost(req.getHeader().getSourceHost().substring(req.getHeader().getSourceHost().indexOf('_')+1));
-//                            hb.setDestinationHost(req.getHeader().getSourceHost());
-//                            hb.setMaxHops(5);
-//
-//                            rb.setHeader(hb);
-//                            rb.setSecret(1234567809);
-//                            rb.setPayload(Work.Payload.newBuilder().setPing(true));
-//                            //channel.writeAndFlush(rb.build());
-//                            sq.enqueueResponse(rb.build(),sq.getChannel());
-//                        }
-//                        else { //message doesn't belong to current node. Forward on other edges
-//                            msgDropFlag = true;
-//                            PrintUtil.printWork(req);
-//                            if (req.getHeader().getMaxHops() > 0 && MessageServer.getEmon() != null) {// forward if Comm-worker port is active
-//                                for (EdgeInfo ei : MessageServer.getEmon().getOutboundEdgeInfoList()) {
-//                                    if (ei.isActive() && ei.getChannel() != null) {// check if channel of outbound edge is active
-//                                        logger.debug("Workmessage being queued");
-//                                        Work.WorkRequest.Builder wb = Work.WorkRequest.newBuilder();
-//
-//                                        Common.Header.Builder hb = Common.Header.newBuilder();
-//                                        hb.setNodeId(sq.state.getConf().getNodeId());
-//                                        hb.setTime(req.getHeader().getTime());
-//                                        hb.setDestination(req.getHeader().getDestination());
-//                                        hb.setSourceHost(sq.state.getConf().getNodeId()+"_"+req.getHeader().getSourceHost());
-//                                        hb.setDestinationHost(req.getHeader().getDestinationHost());
-//                                        hb.setMaxHops(req.getHeader().getMaxHops() -1);
-//
-//                                        wb.setHeader(hb);
-//                                        wb.setSecret(1234567809);
-//                                        wb.setPayload(Work.Payload.newBuilder().setPing(true));
-//                                        //ei.getChannel().writeAndFlush(wb.build());
-//                                        PerChannelWorkQueue edgeQueue = (PerChannelWorkQueue) ei.getQueue();
-//                                        edgeQueue.enqueueResponse(wb.build(),ei.getChannel());
-//                                        msgDropFlag = false;
-//                                        logger.debug("Workmessage queued");
-//                                    }
-//                                }
-//                                if (msgDropFlag)
-//                                    logger.info("Message dropped <node,ping,destination>: <" + req.getHeader().getNodeId() + "," + payload.getPing() + "," + req.getHeader().getDestination() + ">");
-//                            } else {// drop the message or queue it for limited time to send to connected node
-//                                //todo
-//                                logger.info("No outbound edges to forward. To be handled");
-//                            }
-//                        }
-
                     } else if (workMessage.hasErr()) {
-//                        Common.Failure err = payload.getErr();
-//                        logger.error("failure from " + req.getHeader().getNodeId());
-
                         Common.Failure err = workMessage.getErr();
                         System.out.println("failure from " + workMessage.getHeader().getNodeId());
 
                     } else if (workMessage.hasTask()) {
-//                        Work.Task t = payload.getTask();
-//                        sq.gerServerState().getTasks().addTask(t);
 
                         Work.Task t = workMessage.getTask();
                         if (t.getTaskType() == Work.Task.TaskType.SAVEDATATOLEADER) {
@@ -236,11 +168,6 @@ public class InboundWorkerThread extends Thread {
                         ElectionHandler.getInstance().handleElection(workMessage);
 
                     }
-//                    else if(workMessage.hasRaftmsg())
-//                    {
-//                        RaftManager.getInstance().processRequest((Work.WorkRequest)msg);
-//                        //ElectionManager.getInstance().assessCurrentState();
-//                    }
                 }
             } catch (InterruptedException ie) {
                 break;
