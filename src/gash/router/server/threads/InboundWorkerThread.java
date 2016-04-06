@@ -116,11 +116,13 @@ public class InboundWorkerThread extends Thread {
 
                                     taskBuilder = Work.Task.newBuilder();
                                     taskBuilder.setTaskType(Work.Task.TaskType.DATASAVEDBYEVERYONE);
-
+                                    taskBuilder.setSeriesId(t.getSeriesId());
+                                    taskBuilder.setSeqId(t.getSeqId());
                                     hb = Common.Header.newBuilder();
                                     hb.setNodeId(inboundWorkQueue.getState().getConf().getNodeId());
                                     hb.setDestination(workMessage.getHeader().getNodeId());
                                     hb.setTime(System.currentTimeMillis());
+                                    
 
                                     wb = Work.WorkMessage.newBuilder();
                                     wb.setHeader(hb);
@@ -133,7 +135,7 @@ public class InboundWorkerThread extends Thread {
                             }
                         }
                         else if (t.getTaskType() == Work.Task.TaskType.SAVEDATATONODE) {
-
+                        	System.out.println("i got message from leader and i will save it");
                             ByteString data = t.getData();
                             if (data != null) {
                                 byte [] savebytes = t.getData().toByteArray();
@@ -144,7 +146,8 @@ public class InboundWorkerThread extends Thread {
 
                                     Work.Task.Builder taskBuilder = Work.Task.newBuilder();
                                     taskBuilder.setTaskType(Work.Task.TaskType.DATASAVEDBYNODE);
-
+                                    taskBuilder.setSeriesId(t.getSeriesId());
+                                    taskBuilder.setSeqId(t.getSeqId());
                                     Common.Header.Builder hb = Common.Header.newBuilder();
                                     hb.setNodeId(inboundWorkQueue.getState().getConf().getNodeId());
                                     hb.setDestination(workMessage.getHeader().getNodeId());
