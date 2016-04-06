@@ -118,11 +118,11 @@ public class InboundWorkerThread extends Thread {
                                     taskBuilder.setTaskType(Work.Task.TaskType.DATASAVEDBYEVERYONE);
                                     taskBuilder.setSeriesId(t.getSeriesId());
                                     taskBuilder.setSeqId(t.getSeqId());
+
                                     hb = Common.Header.newBuilder();
                                     hb.setNodeId(inboundWorkQueue.getState().getConf().getNodeId());
                                     hb.setDestination(workMessage.getHeader().getNodeId());
                                     hb.setTime(System.currentTimeMillis());
-                                    
 
                                     wb = Work.WorkMessage.newBuilder();
                                     wb.setHeader(hb);
@@ -148,6 +148,7 @@ public class InboundWorkerThread extends Thread {
                                     taskBuilder.setTaskType(Work.Task.TaskType.DATASAVEDBYNODE);
                                     taskBuilder.setSeriesId(t.getSeriesId());
                                     taskBuilder.setSeqId(t.getSeqId());
+
                                     Common.Header.Builder hb = Common.Header.newBuilder();
                                     hb.setNodeId(inboundWorkQueue.getState().getConf().getNodeId());
                                     hb.setDestination(workMessage.getHeader().getNodeId());
@@ -163,7 +164,9 @@ public class InboundWorkerThread extends Thread {
                                 }
                             }
                         }
-
+                        else if (t.getTaskType() == Work.Task.TaskType.DATASAVEDBYNODE) {
+                            System.out.println("Data saved by node");
+                        }
                     } else if (workMessage.hasState()) {
                         Work.WorkState s = workMessage.getState();
                     }

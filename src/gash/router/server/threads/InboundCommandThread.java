@@ -97,7 +97,7 @@ public class InboundCommandThread extends Thread {
                                 byte [] savebytes = commandMessage.getData().getData().toByteArray();
 
                                 ByteBuffer fileByteBuffer = ByteBuffer.wrap( savebytes);
-                                ResultSet insertq = dao.insert(commandMessage.getData().getFilename(), fileByteBuffer);
+                                ResultSet insertq = dao.insert(commandMessage.getData().getFilename(), fileByteBuffer,0);
                                 if(insertq.wasApplied()){
                                     // duplicate to other nodes
                                     Work.Task.Builder taskBuilder = Work.Task.newBuilder();
