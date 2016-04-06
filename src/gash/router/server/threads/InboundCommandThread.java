@@ -101,6 +101,7 @@ public class InboundCommandThread extends Thread {
                             taskBuilder.setSeqId(0);
                             taskBuilder.setSeriesId(System.currentTimeMillis());
 
+
                             Common.Header.Builder hb = Common.Header.newBuilder();
                             hb.setNodeId(inboundCommandQueue.getState().getConf().getNodeId());
                             hb.setDestination(-1);
