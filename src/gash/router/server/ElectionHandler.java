@@ -19,6 +19,7 @@ public class ElectionHandler {
     private CustomElection customElection;
 
     private Integer syncInt = 0;
+    private static Integer syncValue = 0;
 
     public static RoutingConf conf;
 
@@ -32,10 +33,12 @@ public class ElectionHandler {
     }
 
     public static synchronized ElectionHandler getInstance(){
-        if(electionHandlerInstance == null)
-            electionHandlerInstance = new ElectionHandler();
+        synchronized (ElectionHandler.class) {
+            if (electionHandlerInstance == null)
+                electionHandlerInstance = new ElectionHandler();
 
-        return electionHandlerInstance;
+            return electionHandlerInstance;
+        }
     }
 
     public synchronized void checkCurrentState()
@@ -52,7 +55,7 @@ public class ElectionHandler {
             {
                 System.out.println("Time for customElection!!!");
                 // do the leader customElection
-                synchronized (syncInt)
+                synchronized (this)
                 {
                     startElection();
                 }
@@ -169,7 +172,7 @@ public class ElectionHandler {
 
     private synchronized CustomElection getElectionInstance() {
         if (customElection == null) {
-            synchronized (syncInt) {
+            synchronized (this) {
                 if (customElection !=null)
                     return customElection;
 

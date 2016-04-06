@@ -58,6 +58,8 @@ public class CustomElection {
         hasAlreadyVoted = false;
         receivedVotes = 0;
         maxVotes = 0;
+        candidateId = -1;
+        electionID = -1;
     }
 
     public boolean updateCurrent(Election.LeaderElection req) {
@@ -133,7 +135,7 @@ public class CustomElection {
                 active = false;
                 ElectionHandler.getInstance().concludeWith(true, req.getCandidateId());
             } else if (req.getAction().getNumber() == Election.LeaderElection.ElectAction.NOMINATE_VALUE) {
-                System.out.println("Nominating "+message.getHeader().getNodeId());
+                System.out.println("Nominating "+message.getElection().getCandidateId());
                 toReturnMessage = castVote(message, false);
             }
 

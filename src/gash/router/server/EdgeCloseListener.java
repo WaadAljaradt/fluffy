@@ -36,7 +36,7 @@ public class EdgeCloseListener implements ChannelFutureListener {
             ElectionHandler.getInstance().leaderIsDead();
         }
 
-//        Thread.sleep(new Random().nextInt(3) * 1000);
+        Thread.sleep(new Random().nextInt(3) * 1000);
 
         ElectionHandler.getInstance().checkCurrentState();
     }
