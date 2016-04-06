@@ -29,7 +29,7 @@ public class CassandraDAO
   'replication_factor': '1'
 };
 
-CREATE TABLE files ( filename text, file blob,  seq_id int , PRIMARY KEY (filename));
+CREATE TABLE files ( filename text, file blob,  seq_id int , PRIMARY KEY (filename,seq_id));
  * 
  */
     private void connect()
