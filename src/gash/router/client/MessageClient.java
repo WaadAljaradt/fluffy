@@ -15,6 +15,7 @@
  */
 package gash.router.client;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 
@@ -56,21 +57,56 @@ public class MessageClient {
 		CommandMessage.Builder rb = CommandMessage.newBuilder();
 		rb.setHeader(hb);
 		rb.setPing(true);
-			
-		FileDataInfo.Builder fd = FileDataInfo.newBuilder();
+		rb.setRetrieve(true);
+//		rb.setSave(true);
+
+		try {
+			// direct no queue
+			// CommConnection.getInstance().write(rb.build());
+
+			// using queue
+			CommConnection.getInstance().enqueue(rb.build());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void uploadFile() {
+		// construct the message to send
 		
 		System.out.println("Sending a file");
 		
-		File file = new File("C:\\Users\\Ashok\\Desktop\\s2.png");
-		fd.setFilename("s2.png");
+		File file = new File("/home/vishv/Pictures/mbuntu-0.jpg");
+		long fileLength = file.length();
 		try {
+			int count = 0;
+			byte[] dataBuffer = new byte[1048576];
 			FileInputStream fis = new FileInputStream(file);
-			int length = (int) file.length(); // returns long
-			byte[] dataBuffer = new byte[length];
-			fis.read(dataBuffer);
-			ByteString bs = ByteString.copyFrom(dataBuffer);
-			fd.setData(bs);
-			rb.setData(fd);
+			int bytesread = 0;
+			BufferedInputStream in = new BufferedInputStream(fis);
+			while((bytesread = in.read(dataBuffer)) !=-1) {
+				ByteString bs = ByteString.copyFrom(dataBuffer);
+				Header.Builder hb = Header.newBuilder();
+				hb.setNodeId(999);
+				hb.setTime(System.currentTimeMillis());
+				hb.setDestination(-1);
+				
+				CommandMessage.Builder rb = CommandMessage.newBuilder();
+				rb.setHeader(hb);
+				rb.setPing(true);
+//				rb.setRetrieve(true);
+				rb.setSave(true);
+				rb.setUsername("vishv");
+					
+				FileDataInfo.Builder fd = FileDataInfo.newBuilder();
+				fd.setFilename("mbuntu-0.jpg");
+				fd.setData(bs);
+				fd.setChunkblockid(count);
+				fd.setFilesize(fileLength);
+				rb.setData(fd);
+				CommConnection.getInstance().enqueue(rb.build());
+				count++;
+			}
 			fis.close();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -81,7 +117,7 @@ public class MessageClient {
 			// CommConnection.getInstance().write(rb.build());
 
 			// using queue
-			CommConnection.getInstance().enqueue(rb.build());
+//			CommConnection.getInstance().enqueue(rb.build());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
