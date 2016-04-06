@@ -18,4 +18,5 @@ message CommandMessage {
    optional FileDataInfo data = 6;
    optional bool retrieve = 7;
    optional bool save = 8;
+   optional string username = 9;
 }
