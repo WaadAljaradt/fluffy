@@ -15,9 +15,15 @@
  */
 package gash.router.app;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
 import gash.router.client.CommConnection;
 import gash.router.client.CommListener;
 import gash.router.client.MessageClient;
+import pipe.common.Common.Header;
 import routing.Pipe.CommandMessage;
 
 public class DemoApp implements CommListener {
@@ -34,20 +40,7 @@ public class DemoApp implements CommListener {
 
 	private void ping(int N) {
 		// test round-trip overhead (note overhead for initial connection)
-		final int maxN = 10;
-		long[] dt = new long[N];
-		long st = System.currentTimeMillis(), ft = 0;
-		for (int n = 0; n < N; n++) {
-			mc.ping();
-			ft = System.currentTimeMillis();
-			dt[n] = ft - st;
-			st = ft;
-		}
-
-		System.out.println("Round-trip ping times (msec)");
-		for (int n = 0; n < N; n++)
-			System.out.print(dt[n] + " ");
-		System.out.println("");
+		mc.uploadFile();
 	}
 
 	@Override
@@ -57,7 +50,33 @@ public class DemoApp implements CommListener {
 
 	@Override
 	public void onMessage(CommandMessage msg) {
-		System.out.println("---> " + msg);
+		
+		if(msg.hasMessage()) {
+			System.out.println("---> " + msg.getMessage());
+		}
+		else if(msg.hasRetrieve()) {
+			if (msg.hasData()) {
+				if (msg.getData().hasFilename()) {
+					File file = new File("/home/vishv/Desktop/" + msg.getData().getFilename());
+					if (msg.hasData()) {
+						FileOutputStream fos;
+						try {
+							fos = new FileOutputStream(file);
+							byte[] filedata = msg.getData().getData().toByteArray();
+//							System.out.println(msg.getData().getData());
+							fos.write(filedata, 0, filedata.length);
+							fos.close();
+						} catch (FileNotFoundException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+				}
+			}			
+		}
 	}
 
 	/**

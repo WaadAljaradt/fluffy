@@ -77,6 +77,8 @@ public class CommHandler extends SimpleChannelInboundHandler<CommandMessage> {
 
 			// TODO this may need to be delegated to a thread pool to allow
 			// async processing of replies
+//			System.out.println("File Successful");
+//			System.out.println("---> " + msg.getMessage());
 			cl.onMessage(msg);
 		}
 	}
