@@ -218,7 +218,7 @@ public class InboundCommandThread extends Thread {
                                     taskBuilder.setFilename(commandMessage.getData().getFilename());
                                     taskBuilder.setData(commandMessage.getData().getData());
                                     taskBuilder.setSeqId((int)commandMessage.getData().getChunkblockid());
-                                    taskBuilder.setSeriesId(System.currentTimeMillis());
+                                    taskBuilder.setSeriesId(timeStamp);
 
                                     Common.Header.Builder hb = Common.Header.newBuilder();
                                     hb.setNodeId(inboundCommandQueue.getState().getConf().getNodeId());
