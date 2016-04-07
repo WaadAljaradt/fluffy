@@ -15,7 +15,8 @@
  */
 package gash.router.server;
 
-import com.sun.corba.se.spi.activation.Server;
+//import com.sun.corba.se.spi.activation.Server;
+
 import gash.router.server.edges.EdgeMonitor;
 
 import java.nio.ByteBuffer;
@@ -27,7 +28,6 @@ import gash.router.server.queue.WorkerQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datastax.driver.core.ResultSet;
 import com.google.protobuf.ByteString;
 
 import io.netty.channel.Channel;

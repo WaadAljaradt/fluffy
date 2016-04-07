@@ -71,16 +71,18 @@ public class MessageClient {
 		}
 	}
 
-	public void uploadFile() {
+	public void uploadFile(String filepath) {
 		// construct the message to send
 		
 		System.out.println("Sending a file");
 		
-		File file = new File("/home/vishv/Pictures/mbuntu-0.jpg");
-		long fileLength = file.length();
+		//File file = new File("D:\\SJSU\\subjects\\sem2\\cmpe275\\projects\\fluffy\\m1.png");
+		File file = new File(filepath);
+		long fileLength = file.length(); // File Length
+		long chunkLength = 1048576; // sets chunkLength Size
 		try {
 			int count = 0;
-			byte[] dataBuffer = new byte[1048576];
+			byte[] dataBuffer = new byte[(int)chunkLength];
 			FileInputStream fis = new FileInputStream(file);
 			int bytesread = 0;
 			BufferedInputStream in = new BufferedInputStream(fis);
@@ -99,13 +101,15 @@ public class MessageClient {
 				rb.setUsername("vishv");
 					
 				FileDataInfo.Builder fd = FileDataInfo.newBuilder();
-				fd.setFilename("mbuntu-0.jpg");
+				fd.setFilename("waad.jpg");
 				fd.setData(bs);
 				fd.setChunkblockid(count);
 				fd.setFilesize(fileLength);
+				fd.setTotalchunks((long)Math.ceil((long)(fileLength/chunkLength))); //adding How many chunks are required.
 				rb.setData(fd);
 				CommConnection.getInstance().enqueue(rb.build());
 				count++;
+				System.out.println("Chunk Counts " + count);
 			}
 			fis.close();
 		} catch (Exception e) {

@@ -13,7 +13,7 @@ import com.datastax.driver.core.querybuilder.QueryBuilder;
 import org.apache.commons.io.FileUtils;
 public class CassandraDAO
 {
-  private Cluster cluster;
+    private Cluster cluster;
     private Session session;
    /* private String NODE = ABCServiceTester.Properties.Settings.Default.CASSANDRA_NODE;
     private String USER = ABCServiceTester.Properties.Settings.Default.USERNAME;
@@ -24,19 +24,20 @@ public class CassandraDAO
     {
         connect();
     }
-/*CREATE KEYSPACE files WITH replication = {
-  'class': 'SimpleStrategy',
-  'replication_factor': '1'
-};
+    /*CREATE KEYSPACE files WITH replication = {
+      'class': 'SimpleStrategy',
+      'replication_factor': '1'
+    };
 
+<<<<<<< HEAD
 CREATE TABLE files ( filename text, file blob,  seq_id int , timeStamp double ,  PRIMARY KEY (filename,seq_id));
  * 
  */
     private void connect()
     {
-    	cluster = Cluster.builder().addContactPoint("127.0.0.1").build();
-    	session = cluster.connect("files");
-    	
+        cluster = Cluster.builder().addContactPoint("127.0.0.1").build();
+        session = cluster.connect("files");
+
     }
 
     protected Session getSession()
@@ -50,19 +51,17 @@ CREATE TABLE files ( filename text, file blob,  seq_id int , timeStamp double , 
     }
     public ResultSet insert(String filename, ByteBuffer byteBuffer, int seq_id, long timeStamp)
     {
-    	//connect();
-    //	ByteBuffer fileByteBuffer = ByteBuffer.wrap( readFileToByteArray( filename ) );
         Statement insertFile = QueryBuilder.insertInto( "files" ).value( "filename", filename ).value( "file", byteBuffer ).value("seq_id", seq_id).value("timeStamp", timeStamp);
         ResultSet resutls = session.execute( insertFile );
         return resutls;
-        
-    //	session.execute("INSERT INTO users (key,value) VALUES ('"+key+"', '"+value+"')");
+
+        //	session.execute("INSERT INTO users (key,value) VALUES ('"+key+"', '"+value+"')");
     }
-    
+
     public Row get(String filename)
     {
-    	Statement readFile = QueryBuilder.select( "file" ).from( "files" ).where( QueryBuilder.eq( "filename", filename ) );
-    Row fileRow = session.execute( readFile ).one();
+        Statement readFile = QueryBuilder.select( "file" ).from( "files" ).where( QueryBuilder.eq( "filename", filename ) );
+        Row fileRow = session.execute( readFile ).one();
  /*   if ( fileRow != null ) {
         ByteBuffer fileBytes = fileRow.getBytes( "file" );
         File f = convertToFile( fileBytes );
@@ -70,7 +69,7 @@ CREATE TABLE files ( filename text, file blob,  seq_id int , timeStamp double , 
     	connect();
   ResultSet results = session.execute("SELECT * FROM users WHERE key='"+key+"'");
   */
-    	return fileRow;
+        return fileRow;
     }
 
 
@@ -93,6 +92,7 @@ CREATE TABLE files ( filename text, file blob,  seq_id int , timeStamp double , 
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+
         	
         	
         	
@@ -106,6 +106,6 @@ CREATE TABLE files ( filename text, file blob,  seq_id int , timeStamp double , 
 	for (Row row : results) {
 	System.out.format("%s %d\n", row.getString("firstname"), row.getInt("age"));
 	}*/
-	
-        }
+
+    }
 }

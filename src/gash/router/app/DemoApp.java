@@ -40,7 +40,7 @@ public class DemoApp implements CommListener {
 
 	private void ping(int N) {
 		// test round-trip overhead (note overhead for initial connection)
-		mc.uploadFile();
+		mc.uploadFile("");
 	}
 
 	@Override

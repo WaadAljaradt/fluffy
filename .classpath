@@ -21,5 +21,6 @@
 	<classpathentry kind="lib" path="/Users/waadjaradat/Downloads/cassandra-java-driver-2.0.2/cassandra-driver-dse-2.0.2.jar"/>
 	<classpathentry kind="lib" path="/Users/waadjaradat/Downloads/metrics-core-3.0.1.jar"/>
 	<classpathentry kind="lib" path="/Users/waadjaradat/Downloads/org.apache.commons.io.jar"/>
+	<classpathentry kind="lib" path="/Users/waadjaradat/Documents/workspaceNetty/fluffy/lib/aerospike-client-3.0.25-jar-with-dependencies.jar"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>
