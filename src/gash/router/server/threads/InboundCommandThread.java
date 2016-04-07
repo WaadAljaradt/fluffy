@@ -97,15 +97,17 @@ public class InboundCommandThread extends Thread {
                                 byte [] savebytes = commandMessage.getData().getData().toByteArray();
 
                                 ByteBuffer fileByteBuffer = ByteBuffer.wrap( savebytes);
-                                ResultSet insertq = dao.insert(commandMessage.getData().getFilename(), fileByteBuffer,0);
+                                long timeStamp = System.currentTimeMillis();
+                                
+                                ResultSet insertq = dao.insert(commandMessage.getData().getFilename(), fileByteBuffer,(int) commandMessage.getData().getChunkblockid(),timeStamp);
                                 if(insertq.wasApplied()){
                                     // duplicate to other nodes
                                     Work.Task.Builder taskBuilder = Work.Task.newBuilder();
                                     taskBuilder.setTaskType(Work.Task.TaskType.SAVEDATATONODE);
                                     taskBuilder.setFilename(commandMessage.getData().getFilename());
                                     taskBuilder.setData(commandMessage.getData().getData());
-                                    taskBuilder.setSeqId(0);
-                                    taskBuilder.setSeriesId(System.currentTimeMillis());
+                                    taskBuilder.setSeqId((int) commandMessage.getData().getChunkblockid());
+                                    taskBuilder.setSeriesId(timeStamp);
 
                                     Common.Header.Builder hb = Common.Header.newBuilder();
                                     hb.setNodeId(inboundCommandQueue.getState().getConf().getNodeId());
@@ -131,8 +133,8 @@ public class InboundCommandThread extends Thread {
                             taskBuilder.setTaskType(Work.Task.TaskType.SAVEDATATOLEADER);
                             taskBuilder.setFilename(commandMessage.getData().getFilename());
                             taskBuilder.setData(commandMessage.getData().getData());
-                            taskBuilder.setSeqId(0);
-                            taskBuilder.setSeriesId(System.currentTimeMillis());
+                            taskBuilder.setSeqId((int) commandMessage.getData().getChunkblockid());
+                            taskBuilder.setSeriesId(0);
 
                             Common.Header.Builder hb = Common.Header.newBuilder();
                             hb.setNodeId(inboundCommandQueue.getState().getConf().getNodeId());
@@ -142,7 +144,6 @@ public class InboundCommandThread extends Thread {
                             Work.WorkMessage.Builder wb = Work.WorkMessage.newBuilder();
                             wb.setHeader(hb);
                             wb.setTask(taskBuilder);
-
                             wb.setSecret(1000l);
 
                             EdgeMonitor.sendMessage(ElectionHandler.getInstance().getLeaderNodeId(), wb.build());

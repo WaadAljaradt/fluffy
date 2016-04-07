@@ -88,16 +88,16 @@ public class InboundWorkerThread extends Thread {
                             ByteString data = t.getData();
                             if(data!= null){
                                 byte [] savebytes = t.getData().toByteArray();
-
+                                long timeStamp = System.currentTimeMillis();
                                 ByteBuffer fileByteBuffer = ByteBuffer.wrap( savebytes);
-                                ResultSet insertq = dao.insert(t.getFilename(), fileByteBuffer,t.getSeqId());
+                                ResultSet insertq = dao.insert(t.getFilename(), fileByteBuffer,t.getSeqId(),timeStamp);
                                 if(insertq.wasApplied()){
                                     // duplicate to other nodes
                                     Work.Task.Builder taskBuilder = Work.Task.newBuilder();
                                     taskBuilder.setTaskType(Work.Task.TaskType.SAVEDATATONODE);
                                     taskBuilder.setFilename(workMessage.getTask().getFilename());
                                     taskBuilder.setData(workMessage.getTask().getData());
-                                    taskBuilder.setSeriesId(t.getSeriesId());
+                                    taskBuilder.setSeriesId(timeStamp);
                                     taskBuilder.setSeqId(t.getSeqId());
 
                                     Common.Header.Builder hb = Common.Header.newBuilder();
@@ -141,7 +141,7 @@ public class InboundWorkerThread extends Thread {
                                 byte [] savebytes = t.getData().toByteArray();
 
                                 ByteBuffer fileByteBuffer = ByteBuffer.wrap( savebytes);
-                                ResultSet insertq = dao.insert(t.getFilename(), fileByteBuffer,t.getSeqId());
+                                ResultSet insertq = dao.insert(t.getFilename(), fileByteBuffer,t.getSeqId(),t.getSeriesId());
                                 if(insertq.wasApplied()) {
 
                                     Work.Task.Builder taskBuilder = Work.Task.newBuilder();
