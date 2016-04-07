@@ -109,7 +109,7 @@ public class CommandHandler extends SimpleChannelInboundHandler<CommandMessage> 
 						System.out.println("-------------START CASSANDRA-----------");
 						System.out.println("Saving in Cassandra");
 						com.datastax.driver.core.ResultSet rs =
-						dao.insert(msg.getData().getFilename(),ByteBuffer.wrap(msg.getData().getData().toByteArray()), (int)msg.getData().getChunkblockid());
+						dao.insert(msg.getData().getFilename(),ByteBuffer.wrap(msg.getData().getData().toByteArray()), (int)msg.getData().getChunkblockid(),0);
 						System.out.println(rs.wasApplied());
 						System.out.println("-------------END CASSANDRA-----------");
 						

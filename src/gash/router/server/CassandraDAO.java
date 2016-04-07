@@ -29,9 +29,10 @@ public class CassandraDAO
       'replication_factor': '1'
     };
 
-    CREATE TABLE files ( filename text, file blob,  seq_id int , timeStamp double ,  PRIMARY KEY (filename,seq_id));
-     *
-     */
+<<<<<<< HEAD
+CREATE TABLE files ( filename text, file blob,  seq_id int , timeStamp double ,  PRIMARY KEY (filename,seq_id));
+ * 
+ */
     private void connect()
     {
         cluster = Cluster.builder().addContactPoint("127.0.0.1").build();
@@ -50,8 +51,6 @@ public class CassandraDAO
     }
     public ResultSet insert(String filename, ByteBuffer byteBuffer, int seq_id, long timeStamp)
     {
-        //connect();
-        //	ByteBuffer fileByteBuffer = ByteBuffer.wrap( readFileToByteArray( filename ) );
         Statement insertFile = QueryBuilder.insertInto( "files" ).value( "filename", filename ).value( "file", byteBuffer ).value("seq_id", seq_id).value("timeStamp", timeStamp);
         ResultSet resutls = session.execute( insertFile );
         return resutls;
@@ -75,24 +74,25 @@ public class CassandraDAO
 
 
 
-    public static void main(String[] args) {
-        CassandraDAO dao = new CassandraDAO();
-        File file = new File("/Users/waadjaradat/Documents/workspaceNetty/fluffy/runtime/route-1.conf");
-        ByteBuffer fileByteBuffer;
-        try {
-            fileByteBuffer = ByteBuffer.wrap( FileUtils.readFileToByteArray( file) );
-            dao.insert("test", fileByteBuffer,1, System.currentTimeMillis());
-            Row fileRow = dao.get("test");
-            if ( fileRow != null ) {
-                //  ByteBuffer fileBytes = fileRow.getDouble("timeStamp");
-                double time =  fileRow.getDouble("timestamp");
-                System.out.println(time);
-                // File f = convertToFile( fileBytes );
-            }
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+        public static void main(String[] args) {
+        	CassandraDAO dao = new CassandraDAO();
+        	File file = new File("/Users/waadjaradat/Documents/workspaceNetty/fluffy/runtime/route-1.conf");
+        	ByteBuffer fileByteBuffer;
+			try {
+				fileByteBuffer = ByteBuffer.wrap( FileUtils.readFileToByteArray( file) );
+				dao.insert("test", fileByteBuffer,1, System.currentTimeMillis());
+				Row fileRow = dao.get("test");
+				if ( fileRow != null ) {
+			      //  ByteBuffer fileBytes = fileRow.getDouble("timeStamp");
+					double time =  fileRow.getDouble("timestamp");
+			        System.out.println(time);
+			       // File f = convertToFile( fileBytes );
+			    }
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
         	
         	
         	
