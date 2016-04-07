@@ -8,6 +8,7 @@ import com.datastax.driver.core.Cluster;
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
 import com.datastax.driver.core.Session;
+import com.datastax.driver.core.SimpleStatement;
 import com.datastax.driver.core.Statement;
 import com.datastax.driver.core.querybuilder.QueryBuilder;
 import org.apache.commons.io.FileUtils;
@@ -49,6 +50,17 @@ CREATE TABLE files ( filename text, file blob,  seq_id int , timeStamp double , 
 
         return session;
     }
+    
+    public Long getLatestTimeStamp(){
+    	Statement statement = new SimpleStatement("select MAX(timestamp) as a from files");
+   
+    	Row resutls = session.execute( statement ).one();
+    	Long latest = (long) resutls.getDouble("a");
+        return latest;
+        
+    	
+    }
+    
     public ResultSet insert(String filename, ByteBuffer byteBuffer, int seq_id, long timeStamp)
     {
         Statement insertFile = QueryBuilder.insertInto( "files" ).value( "filename", filename ).value( "file", byteBuffer ).value("seq_id", seq_id).value("timeStamp", timeStamp);
@@ -72,27 +84,22 @@ CREATE TABLE files ( filename text, file blob,  seq_id int , timeStamp double , 
         return fileRow;
     }
 
-
-
         public static void main(String[] args) {
         	CassandraDAO dao = new CassandraDAO();
         	File file = new File("/Users/waadjaradat/Documents/workspaceNetty/fluffy/runtime/route-1.conf");
         	ByteBuffer fileByteBuffer;
-			try {
-				fileByteBuffer = ByteBuffer.wrap( FileUtils.readFileToByteArray( file) );
-				dao.insert("test", fileByteBuffer,1, System.currentTimeMillis());
-				Row fileRow = dao.get("test");
+			//	fileByteBuffer = ByteBuffer.wrap( FileUtils.readFileToByteArray( file) );
+			//	dao.insert("test", fileByteBuffer,1, System.currentTimeMillis());
+				Row fileRow = dao.get("files");
 				if ( fileRow != null ) {
 			      //  ByteBuffer fileBytes = fileRow.getDouble("timeStamp");
-					double time =  fileRow.getDouble("timestamp");
-			        System.out.println(time);
+					//ouble time =  fileRow.getDouble("timeStamp");
+			   //     System.out.println(fileRow.getDouble("a"));
 			       // File f = convertToFile( fileBytes );
 			    }
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-
+        	
+        	
+        }
         	
         	
         	
@@ -107,5 +114,5 @@ CREATE TABLE files ( filename text, file blob,  seq_id int , timeStamp double , 
 	System.out.format("%s %d\n", row.getString("firstname"), row.getInt("age"));
 	}*/
 
-    }
+    
 }
