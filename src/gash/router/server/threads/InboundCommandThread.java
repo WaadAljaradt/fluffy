@@ -76,7 +76,7 @@ public class InboundCommandThread extends Thread {
         						System.out.println("-------------START CASSANDRA-----------");
     							System.out.println("Saving in Cassandra");
     							com.datastax.driver.core.ResultSet rs =
-    							dao.insert(commandMessage.getData().getFilename(),ByteBuffer.wrap(commandMessage.getData().getData().toByteArray()), (int)commandMessage.getData().getChunkblockid());
+    							dao.insert(commandMessage.getData().getFilename(),ByteBuffer.wrap(commandMessage.getData().getData().toByteArray()), (int)commandMessage.getData().getChunkblockid(), System.currentTimeMillis());
     							System.out.println(rs.wasApplied());
     							System.out.println();
     							System.out.println("-------------END CASSANDRA-----------");
@@ -207,8 +207,10 @@ public class InboundCommandThread extends Thread {
                             if(data!= null){
                                 byte [] savebytes = commandMessage.getData().getData().toByteArray();
 
+                                long timeStamp = System.currentTimeMillis();
+
                                 ByteBuffer fileByteBuffer = ByteBuffer.wrap( savebytes);
-                                ResultSet insertq = dao.insert(commandMessage.getData().getFilename(), fileByteBuffer,0);
+                                ResultSet insertq = dao.insert(commandMessage.getData().getFilename(), fileByteBuffer, (int)commandMessage.getData().getChunkblockid(), timeStamp);
                                 if(insertq.wasApplied()){
                                     // duplicate to other nodes
                                     Work.Task.Builder taskBuilder = Work.Task.newBuilder();
@@ -258,15 +260,6 @@ public class InboundCommandThread extends Thread {
 
                             EdgeMonitor.sendMessage(ElectionHandler.getInstance().getLeaderNodeId(), wb.build());
                         }
-//                    if (msg.getData().hasFilename()) {
-//                        File file = new File(msg.getData().getFilename());
-//                        if (msg.hasData()) {
-//                            FileOutputStream fos = new FileOutputStream(file);
-//                            byte[] filedata = msg.getData().getData().toByteArray();
-//                            fos.write(filedata, 0, filedata.length);
-//                            fos.close();
-//                        }
-//                    }
                     }
                 }
             } catch (InterruptedException ie) {
