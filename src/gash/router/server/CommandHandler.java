@@ -18,6 +18,8 @@ package gash.router.server;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.nio.ByteBuffer;
+import java.sql.ResultSet;
 import java.util.HashMap;
 
 import gash.router.server.edges.EdgeMonitor;
@@ -54,7 +56,11 @@ public class CommandHandler extends SimpleChannelInboundHandler<CommandMessage> 
 	protected RoutingConf conf;
 	private ServerState state;
 	private HashMap<String, HashMap<String, FileChunkInfo>> userFileMaping = new HashMap<String, HashMap<String, FileChunkInfo>>();
-
+	private HashMap<String, Integer> chunkCountMapping = new HashMap<String, Integer>();
+	
+	CassandraDAO dao = new CassandraDAO();
+	
+	
 	private InboundCommandQueue queue;
 
 	public CommandHandler(RoutingConf conf) {
@@ -84,11 +90,110 @@ public class CommandHandler extends SimpleChannelInboundHandler<CommandMessage> 
 
 		try {
 			// TODO How can you implement this without if-else statements?
-			if (msg.hasPing()) {
+			/*if (msg.hasPing()) {
 				logger.info("ping from " + msg.getHeader().getNodeId());
-			} else if (msg.hasMessage()) {
-				logger.info(msg.getMessage());
-			} else if (msg.hasRetrieve()) {
+			}else */if(msg.hasData()){
+				System.out.println("Has save - True");
+				if (msg.hasData()) {
+					System.out.println("Has data - True");
+					if (msg.getData().hasFilename()) {
+						System.out.println("Has filename - True");
+						String filename = msg.getData().getFilename();
+						String username = msg.getUsername();
+						File file = new File(filename);
+						FileOutputStream fos = null;
+
+						
+						//Logic to check whether full chunk has been added to DB or not - start
+						
+						System.out.println("-------------START CASSANDRA-----------");
+						System.out.println("Saving in Cassandra");
+						com.datastax.driver.core.ResultSet rs =
+						dao.insert(msg.getData().getFilename(),ByteBuffer.wrap(msg.getData().getData().toByteArray()), (int)msg.getData().getChunkblockid());
+						System.out.println(rs.wasApplied());
+						System.out.println("-------------END CASSANDRA-----------");
+						
+						if(!chunkCountMapping.containsKey(msg.getUsername())){
+							chunkCountMapping.put(msg.getUsername(), 1);
+						}else{
+							
+							//Cassandra logic
+							
+							//Added to hash map
+							int counts = (chunkCountMapping.get(msg.getUsername()));
+							counts++;
+							
+							Header.Builder hb = Header.newBuilder();
+							hb.setNodeId(990);
+							hb.setTime(System.currentTimeMillis());
+							hb.setDestination(-1);							
+							CommandMessage.Builder rb = CommandMessage.newBuilder();
+							rb.setHeader(hb);
+							rb.setMessage("Chunk " + msg.getData().getChunkblockid() + " Stored successfully.");
+							
+							if(counts == msg.getData().getTotalchunks()){
+								chunkCountMapping.remove(msg.getUsername()); //removing client from hashmap for chunkCalculation.
+								rb.setMessage("Chunk " + msg.getData().getChunkblockid() + " Stored successfully.  \n Whole File Stored Successfully");
+							}else{
+								chunkCountMapping.put(msg.getUsername(), counts);
+							}
+							channel.writeAndFlush(rb.build());
+							//EdgeMonitor
+							
+						}
+						
+						//end
+						
+						
+
+						/*//get mapping of open file uploads for a particular users
+						if(userFileMaping.containsKey(username)) {
+							if(userFileMaping.get(username).containsKey(filename)) {
+								System.out.println("File stream already exits");
+								FileChunkInfo fc = userFileMaping.get(msg.getUsername()).get(filename);
+								fos = fc.fOutStream;
+								
+								byte[] filedata = msg.getData().getData().toByteArray();
+								int offset = (int) fos.getChannel().size();
+								fos.write(filedata, offset, filedata.length);
+							}
+						}
+						else {
+							System.out.println("Creating new File stream");
+							System.out.println(msg.getData().getFilesize());
+							fos = new FileOutputStream(file);
+							byte[] filedata = msg.getData().getData().toByteArray();
+							fos.write(filedata, 0, filedata.length);
+							FileChunkInfo fci = new FileChunkInfo();
+							fci.chunkBlockId = msg.getData().getChunkblockid();
+							fci.currentBytesLength = fos.getChannel().size();
+							fci.fileLength = msg.getData().getFilesize();
+							fci.fOutStream = fos;
+							HashMap<String, FileChunkInfo> fchunk = new  HashMap<String, FileChunkInfo>();
+							fchunk.put(username, fci);
+							userFileMaping.put(username, fchunk);
+							System.out.println(userFileMaping.get(username).size());
+							System.out.println(fos.getChannel().size());
+						}*/
+						
+						/*if(fos.getChannel().size() == msg.getData().getFilesize()) {
+							fos.close();
+							userFileMaping.get(username).remove(filename);
+							
+							Header.Builder hb = Header.newBuilder();
+							hb.setNodeId(990);
+							hb.setTime(System.currentTimeMillis());
+							hb.setDestination(-1);							
+							CommandMessage.Builder rb = CommandMessage.newBuilder();
+							rb.setHeader(hb);
+							rb.setMessage("File Store was Successful");
+							channel.writeAndFlush(rb.build());
+						}*/
+					
+					}
+				}
+			}
+			else if (msg.hasRetrieve()) {
 
                 boolean hasSavedData = false;
 
@@ -155,65 +260,6 @@ public class CommandHandler extends SimpleChannelInboundHandler<CommandMessage> 
 //                            fos.close();
 //                        }
 //                    }
-			}
-            else if(msg.hasSave()) {
-
-				if (msg.hasData()) {
-
-					if (msg.getData().hasFilename()) {
-
-						String filename = msg.getData().getFilename();
-						String username = msg.getUsername();
-						File file = new File(filename);
-						FileOutputStream fos = null;
-
-						if (msg.hasData()) {
-							//get mapping of open file uploads for a particular users
-							if(userFileMaping.containsKey(username)) {
-								if(userFileMaping.get(username).containsKey(filename)) {
-									System.out.println("File stream already exits");
-									FileChunkInfo fc = userFileMaping.get(msg.getUsername()).get(filename);
-									fos = fc.fOutStream;
-									
-									byte[] filedata = msg.getData().getData().toByteArray();
-									int offset = (int) fos.getChannel().size();
-									fos.write(filedata, offset, filedata.length);
-								}
-							}
-							else {
-								System.out.println("Creating new File stream");
-								System.out.println(msg.getData().getFilesize());
-								fos = new FileOutputStream(file);
-								byte[] filedata = msg.getData().getData().toByteArray();
-								fos.write(filedata, 0, filedata.length);
-								FileChunkInfo fci = new FileChunkInfo();
-								fci.chunkBlockId = msg.getData().getChunkblockid();
-								fci.currentBytesLength = fos.getChannel().size();
-								fci.fileLength = msg.getData().getFilesize();
-								fci.fOutStream = fos;
-								HashMap<String, FileChunkInfo> fchunk = new  HashMap<String, FileChunkInfo>();
-								fchunk.put(username, fci);
-								userFileMaping.put(username, fchunk);
-								System.out.println(userFileMaping.get(username).size());
-								System.out.println(fos.getChannel().size());
-							}
-							
-							if(fos.getChannel().size() == msg.getData().getFilesize()) {
-								fos.close();
-								userFileMaping.get(username).remove(filename);
-								
-								Header.Builder hb = Header.newBuilder();
-								hb.setNodeId(990);
-								hb.setTime(System.currentTimeMillis());
-								hb.setDestination(-1);							
-								CommandMessage.Builder rb = CommandMessage.newBuilder();
-								rb.setHeader(hb);
-								rb.setMessage("File Store was Successful");
-								channel.writeAndFlush(rb.build());
-							}
-						}
-					}
-				}
 			}
             else if(msg.hasRetrieve()) {
 				System.out.println("Received request for download");

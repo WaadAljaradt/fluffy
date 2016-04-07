@@ -8,5 +8,5 @@ message FileDataInfo {
 		required bytes data = 2;
 		required int64 chunkblockid = 3;
 		required int64 filesize = 4;
+		required int64 totalchunks = 5;
 }
-	
