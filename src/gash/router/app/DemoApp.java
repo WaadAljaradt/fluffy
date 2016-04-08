@@ -33,6 +33,7 @@ import routing.Pipe.CommandMessage;
 public class DemoApp implements CommListener {
 	private MessageClient mc;
 	private TreeMap<Integer, ByteString> tm = new TreeMap<Integer, ByteString>();
+	public static String fileDownloadPath;
 	
 	public DemoApp(MessageClient mc) {
 		init(mc);
@@ -43,7 +44,7 @@ public class DemoApp implements CommListener {
 		this.mc.addListener(this);
 	}
 
-	private void ping(int N, String filepath, String username) {
+	private void ping(String filepath, String username) {
 		// test round-trip overhead (note overhead for initial connection)
 		mc.uploadFile(filepath, username);
 	}
@@ -63,20 +64,21 @@ public class DemoApp implements CommListener {
 //		if(msg.hasMessage()) {
 //			System.out.println("---> " + msg.getMessage());
 //		}
+		/* Logic to handle file retrieval on client side
+		 * Assemble all the chunks on client side
+		 * And then pass it on to FileOutputStream to create a new file
+		 * */
 		if(msg.hasRetrieve()) {
 			if (msg.hasData()) {
 				if (msg.getData().hasFilename()) {
 					
 					tm.put((int)msg.getData().getChunkblockid(), msg.getData().getData());
-					System.out.println("Chunk block id "+ msg.getData().getChunkblockid());
-					System.out.println("Total Chunk length " + msg.getData().getTotalchunks() );
 					if(tm.size() == msg.getData().getTotalchunks()) {
-						File file = new File(msg.getData().getFilename());
+						File file = new File(fileDownloadPath + msg.getData().getFilename());
 						try {
 							FileOutputStream fout = new FileOutputStream(file, true);
 							for(Map.Entry<Integer, ByteString> entry: tm.entrySet()) {
 								byte[] data = entry.getValue().toByteArray();
-								System.out.println("writing bytes to file");
 								fout.write(data);
 							}
 							fout.close();
@@ -89,10 +91,8 @@ public class DemoApp implements CommListener {
 						}
 						finally {
 							tm.clear();							
-						}
-						
+						}						
 					}
-					System.out.println("Tree Map Size " + tm.size());
 				}
 			}			
 		}
@@ -113,10 +113,11 @@ public class DemoApp implements CommListener {
 
 			// do stuff w/ the connection
 			if(args[1].equals("upload")) {
-				da.ping(2, args[2], args[0]);				
+				da.ping(args[2], args[0]);				
 			}
 
 			if(args[1].equals("download")) {
+				fileDownloadPath = args[3];
 				da.download(args[2]);	
 			}
 			System.out.println("\n** exiting in 10 seconds. **");
