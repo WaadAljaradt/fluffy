@@ -96,6 +96,21 @@ you have to drop your table to add the new primary key and create it again
         return fileRow;
     }
 
+    public ResultSet getMatchingFiles(String filename) {
+//    	Statement readFile = QueryBuilder.select( "*" ).from( "files" ).where( QueryBuilder.eq( "filename", filename ) );
+    	Statement readFile = new SimpleStatement("select filename, file, seq_id from files where filename = '" + filename +"'");
+    	ResultSet results= session.execute(readFile);
+    	
+    	return results;
+    }
+    
+    public long getFileCount(String filename) {
+    	Statement readFile = new SimpleStatement("select count(*) as c from files where filename = '" + filename +"'");
+    	Row results= session.execute(readFile).one();
+    	
+    	return results.getLong("c");
+    }
+
         public static void main(String[] args) {
         	CassandraDAO dao = new CassandraDAO();
         	File file = new File("/Users/waadjaradat/Documents/workspaceNetty/fluffy/runtime/route-1.conf");

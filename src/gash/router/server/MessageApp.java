@@ -33,7 +33,7 @@ public class MessageApp {
 		}*/
 
 //		File cf = new File("runtime/route-6.conf");
-		File cf = new File("runtime/route-1.conf");
+		File cf = new File("runtime/route-5.conf");
 		try {
 			MessageServer svr = new MessageServer(cf);
 			svr.startServer();

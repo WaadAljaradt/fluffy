@@ -1,6 +1,8 @@
 package gash.router.server.threads;
 
 import com.datastax.driver.core.ResultSet;
+import com.datastax.driver.core.Row;
+import com.datastax.driver.core.utils.Bytes;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.GeneratedMessage;
 import gash.router.server.CassandraDAO;
@@ -10,6 +12,7 @@ import gash.router.server.queue.InboundCommandQueue;
 import io.netty.channel.Channel;
 import pipe.common.Common;
 import pipe.common.Common.Header;
+import pipe.filedata.Filedata.FileDataInfo;
 import pipe.work.Work;
 import routing.Pipe;
 import routing.Pipe.CommandMessage;
@@ -61,7 +64,7 @@ public class InboundCommandThread extends Thread {
                 if (msg instanceof Pipe.CommandMessage) {
                     Pipe.CommandMessage commandMessage = ((Pipe.CommandMessage) msg);
                     
-                    if(commandMessage.hasSave()){
+        			if(commandMessage.hasSave()){
                     	
                     	System.out.println("Has save - True");
         				if (commandMessage.hasData()) {
@@ -74,21 +77,23 @@ public class InboundCommandThread extends Thread {
         						FileOutputStream fos = null;
 
         						System.out.println("-------------START CASSANDRA-----------");
-    							System.out.println("Saving in Cassandra");
-    							com.datastax.driver.core.ResultSet rs =
-    							dao.insert(commandMessage.getData().getFilename(),ByteBuffer.wrap(commandMessage.getData().getData().toByteArray()), (int)commandMessage.getData().getChunkblockid(), System.currentTimeMillis());
-    							System.out.println(rs.wasApplied());
-    							System.out.println();
-    							System.out.println("-------------END CASSANDRA-----------");
+        						System.out.println("Saving in Cassandra");
+        						//enter timestamp
+        						long unixTime = System.currentTimeMillis();
+        						System.out.println(unixTime);
+        						com.datastax.driver.core.ResultSet rs = dao.insert(commandMessage.getData().getFilename(),ByteBuffer.wrap(commandMessage.getData().getData().toByteArray()), (int)commandMessage.getData().getChunkblockid(), unixTime);
+        						System.out.println(rs.wasApplied());
+        						System.out.println();
+        						System.out.println("-------------END CASSANDRA-----------");
         						//Logic to check whether full chunk has been added to DB or not - start
         						
-    							Header.Builder hb = Header.newBuilder();
-    							hb.setNodeId(990);
-    							hb.setTime(System.currentTimeMillis());
-    							hb.setDestination(-1);		
-    							CommandMessage.Builder rb = CommandMessage.newBuilder();
-    							rb.setHeader(hb);
-    							
+        						Header.Builder hb = Header.newBuilder();
+        						hb.setNodeId(990);
+        						hb.setTime(System.currentTimeMillis());
+        						hb.setDestination(-1);		
+        						CommandMessage.Builder rb = CommandMessage.newBuilder();
+        						rb.setHeader(hb);
+        						
         						if(!chunkCountMapping.containsKey(commandMessage.getUsername())){
         							chunkCountMapping.put(commandMessage.getUsername(), 1);
         							if(commandMessage.getData().getTotalchunks() == 1){
@@ -111,67 +116,59 @@ public class InboundCommandThread extends Thread {
         							}
         						}
         						conn.writeAndFlush(rb.build());
-        						//end
-        						
-        						
-
-        						/*//get mapping of open file uploads for a particular users
-        						if(userFileMaping.containsKey(username)) {
-        							if(userFileMaping.get(username).containsKey(filename)) {
-        								System.out.println("File stream already exits");
-        								FileChunkInfo fc = userFileMaping.get(msg.getUsername()).get(filename);
-        								fos = fc.fOutStream;
-        								
-        								byte[] filedata = msg.getData().getData().toByteArray();
-        								int offset = (int) fos.getChannel().size();
-        								fos.write(filedata, offset, filedata.length);
-        							}
-        						}
-        						else {
-        							System.out.println("Creating new File stream");
-        							System.out.println(msg.getData().getFilesize());
-        							fos = new FileOutputStream(file);
-        							byte[] filedata = msg.getData().getData().toByteArray();
-        							fos.write(filedata, 0, filedata.length);
-        							FileChunkInfo fci = new FileChunkInfo();
-        							fci.chunkBlockId = msg.getData().getChunkblockid();
-        							fci.currentBytesLength = fos.getChannel().size();
-        							fci.fileLength = msg.getData().getFilesize();
-        							fci.fOutStream = fos;
-        							HashMap<String, FileChunkInfo> fchunk = new  HashMap<String, FileChunkInfo>();
-        							fchunk.put(username, fci);
-        							userFileMaping.put(username, fchunk);
-        							System.out.println(userFileMaping.get(username).size());
-        							System.out.println(fos.getChannel().size());
-        						}*/
-        						
-        						/*if(fos.getChannel().size() == msg.getData().getFilesize()) {
-        							fos.close();
-        							userFileMaping.get(username).remove(filename);
-        							
-        							Header.Builder hb = Header.newBuilder();
-        							hb.setNodeId(990);
-        							hb.setTime(System.currentTimeMillis());
-        							hb.setDestination(-1);							
-        							CommandMessage.Builder rb = CommandMessage.newBuilder();
-        							rb.setHeader(hb);
-        							rb.setMessage("File Store was Successful");
-        							channel.writeAndFlush(rb.build());
-        						}*/
-        					
+        						//end					
         					}
         				}
         			
                     	
                     }
-                    
-                    if (commandMessage.hasRetrieve()) {
+        			else if (commandMessage.hasRetrieve()) {
 
-                        boolean hasSavedData = false;
-
+        				boolean hasSavedData = false;
+        				if(commandMessage.getData().hasFilename()) {
+        	                
+        					Row r = dao.get(commandMessage.getData().getFilename());
+        					if(r!=null) {
+        						hasSavedData = true;
+        					}					
+        				}
+        				
                         if(hasSavedData)
                         {
+            				Header.Builder hb = Header.newBuilder();
+            				hb.setNodeId(990);
+            				hb.setTime(System.currentTimeMillis());
+            				hb.setDestination(-1);
+
+            				CommandMessage.Builder rb = CommandMessage.newBuilder();
+            				rb.setHeader(hb);
+            				rb.setPing(true);
+            				rb.setRetrieve(true);
+
+            				FileDataInfo.Builder fd = FileDataInfo.newBuilder();
                             //is saved in local database
+        					System.out.println("-------------START CASSANDRA-----------");
+        					System.out.println("Retrieving from Cassandra");
+        					System.out.println("Filename " + commandMessage.getData().getFilename());
+        					com.datastax.driver.core.ResultSet rs = dao.getMatchingFiles(commandMessage.getData().getFilename());
+        					Long fileCount = dao.getFileCount(commandMessage.getData().getFilename());
+        					System.out.println("File Count = " +  fileCount);
+//            				if(rs.one()==null) {
+//            					System.out.println("Invalid query");
+//            				}
+        					System.out.println("Before the row retriver");
+            				for(Row row: rs) {
+                				fd.setFilename(row.getString("filename"));
+            					System.out.println("Filename " + row.getString("filename"));
+                				byte[] data = Bytes.getArray(row.getBytes("file"));
+                				ByteString bs = ByteString.copyFrom(data);
+                				fd.setData(bs);
+                				fd.setChunkblockid(row.getInt("seq_id"));
+                				fd.setTotalchunks(fileCount); //adding How many chunks are required.
+                				rb.setData(fd);
+                            	System.out.println("-------------END CASSANDRA-----------");
+                				conn.writeAndFlush(rb.build());
+                        	}
                         }
                         else
                         {
@@ -181,9 +178,9 @@ public class InboundCommandThread extends Thread {
 
                             pipe.election.Election.LeaderStatus.Builder leaderStatusBuilder = pipe.election.Election.LeaderStatus.newBuilder();
                             leaderStatusBuilder.setAction(pipe.election.Election.LeaderStatus.LeaderQuery.WHOISTHELEADER);
-                            
+
                             Common.Header.Builder hb = Common.Header.newBuilder();
-                            hb.setNodeId(inboundCommandQueue.getState().getConf().getNodeId());
+                            hb.setNodeId(990);
                             hb.setDestination(-1);
                             hb.setTime(System.currentTimeMillis());
 

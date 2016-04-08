@@ -18,6 +18,8 @@ package gash.router.client;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import com.google.protobuf.ByteString;
 
@@ -47,7 +49,7 @@ public class MessageClient {
 		CommConnection.getInstance().addListener(listener);
 	}
 
-	public void ping() {
+	public void downloadFile(String filename) {
 		// construct the message to send
 		Header.Builder hb = Header.newBuilder();
 		hb.setNodeId(999);
@@ -58,7 +60,9 @@ public class MessageClient {
 		rb.setHeader(hb);
 		rb.setPing(true);
 		rb.setRetrieve(true);
-//		rb.setSave(true);
+		FileDataInfo.Builder fd = FileDataInfo.newBuilder();
+		fd.setFilename(filename);
+		rb.setData(fd);
 
 		try {
 			// direct no queue
@@ -71,12 +75,11 @@ public class MessageClient {
 		}
 	}
 
-	public void uploadFile(String filepath) {
+	public void uploadFile(String filepath, String username) {
 		// construct the message to send
 		
 		System.out.println("Sending a file");
 		
-		//File file = new File("D:\\SJSU\\subjects\\sem2\\cmpe275\\projects\\fluffy\\m1.png");
 		File file = new File(filepath);
 		long fileLength = file.length(); // File Length
 		long chunkLength = 1048576; // sets chunkLength Size
@@ -85,6 +88,7 @@ public class MessageClient {
 			byte[] dataBuffer = new byte[(int)chunkLength];
 			FileInputStream fis = new FileInputStream(file);
 			int bytesread = 0;
+			int extraChunk = 0;
 			BufferedInputStream in = new BufferedInputStream(fis);
 			while((bytesread = in.read(dataBuffer)) !=-1) {
 				ByteString bs = ByteString.copyFrom(dataBuffer);
@@ -96,19 +100,24 @@ public class MessageClient {
 				CommandMessage.Builder rb = CommandMessage.newBuilder();
 				rb.setHeader(hb);
 				rb.setPing(true);
-//				rb.setRetrieve(true);
 				rb.setSave(true);
-				rb.setUsername("vishv");
+				rb.setUsername(username);
 					
 				FileDataInfo.Builder fd = FileDataInfo.newBuilder();
-				fd.setFilename("waad.jpg");
+				Path p = Paths.get(filepath);
+				String fname = p.getFileName().toString();
+				System.out.println(fname);
+				count++;
+				fd.setFilename(fname);
 				fd.setData(bs);
 				fd.setChunkblockid(count);
 				fd.setFilesize(fileLength);
-				fd.setTotalchunks((long)Math.ceil((long)(fileLength/chunkLength))); //adding How many chunks are required.
+				if(fileLength%chunkLength > 0) {
+					extraChunk = 1;
+				}
+				fd.setTotalchunks((long)(fileLength/chunkLength)+extraChunk); //adding How many chunks are required.
 				rb.setData(fd);
 				CommConnection.getInstance().enqueue(rb.build());
-				count++;
 				System.out.println("Chunk Counts " + count);
 			}
 			fis.close();

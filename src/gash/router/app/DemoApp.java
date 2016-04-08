@@ -19,6 +19,10 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Map;
+import java.util.TreeMap;
+
+import com.google.protobuf.ByteString;
 
 import gash.router.client.CommConnection;
 import gash.router.client.CommListener;
@@ -28,6 +32,7 @@ import routing.Pipe.CommandMessage;
 
 public class DemoApp implements CommListener {
 	private MessageClient mc;
+	private TreeMap<Integer, ByteString> tm = new TreeMap<Integer, ByteString>();
 	
 	public DemoApp(MessageClient mc) {
 		init(mc);
@@ -38,9 +43,13 @@ public class DemoApp implements CommListener {
 		this.mc.addListener(this);
 	}
 
-	private void ping(int N) {
+	private void ping(int N, String filepath, String username) {
 		// test round-trip overhead (note overhead for initial connection)
-		mc.uploadFile("");
+		mc.uploadFile(filepath, username);
+	}
+	
+	private void download(String filename) {
+		mc.downloadFile(filename);
 	}
 
 	@Override
@@ -51,21 +60,26 @@ public class DemoApp implements CommListener {
 	@Override
 	public void onMessage(CommandMessage msg) {
 		
-		if(msg.hasMessage()) {
-			System.out.println("---> " + msg.getMessage());
-		}
-		else if(msg.hasRetrieve()) {
+//		if(msg.hasMessage()) {
+//			System.out.println("---> " + msg.getMessage());
+//		}
+		if(msg.hasRetrieve()) {
 			if (msg.hasData()) {
 				if (msg.getData().hasFilename()) {
-					File file = new File("/home/vishv/Desktop/" + msg.getData().getFilename());
-					if (msg.hasData()) {
-						FileOutputStream fos;
+					
+					tm.put((int)msg.getData().getChunkblockid(), msg.getData().getData());
+					System.out.println("Chunk block id "+ msg.getData().getChunkblockid());
+					System.out.println("Total Chunk length " + msg.getData().getTotalchunks() );
+					if(tm.size() == msg.getData().getTotalchunks()) {
+						File file = new File(msg.getData().getFilename());
 						try {
-							fos = new FileOutputStream(file);
-							byte[] filedata = msg.getData().getData().toByteArray();
-//							System.out.println(msg.getData().getData());
-							fos.write(filedata, 0, filedata.length);
-							fos.close();
+							FileOutputStream fout = new FileOutputStream(file, true);
+							for(Map.Entry<Integer, ByteString> entry: tm.entrySet()) {
+								byte[] data = entry.getValue().toByteArray();
+								System.out.println("writing bytes to file");
+								fout.write(data);
+							}
+							fout.close();
 						} catch (FileNotFoundException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
@@ -73,7 +87,12 @@ public class DemoApp implements CommListener {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
+						finally {
+							tm.clear();							
+						}
+						
 					}
+					System.out.println("Tree Map Size " + tm.size());
 				}
 			}			
 		}
@@ -93,15 +112,20 @@ public class DemoApp implements CommListener {
 			DemoApp da = new DemoApp(mc);
 
 			// do stuff w/ the connection
-			da.ping(2);
+			if(args[1].equals("upload")) {
+				da.ping(2, args[2], args[0]);				
+			}
 
+			if(args[1].equals("download")) {
+				da.download(args[2]);	
+			}
 			System.out.println("\n** exiting in 10 seconds. **");
 			System.out.flush();
-			Thread.sleep(10 * 1000);
+//			Thread.sleep(10 * 1000);
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
-			CommConnection.getInstance().release();
+//			CommConnection.getInstance().release();
 		}
 	}
 }
