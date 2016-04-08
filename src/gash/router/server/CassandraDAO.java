@@ -31,12 +31,14 @@ public class CassandraDAO
     };
 
 <<<<<<< HEAD
-CREATE TABLE files ( filename text, file blob,  seq_id int , timeStamp double ,  PRIMARY KEY (filename,seq_id));
+CREATE TABLE files ( filename text, file blob,  seq_id int , timeStamp double ,  PRIMARY KEY (filename,timeStamp));
+
+you have to drop your table to add the new primary key and create it again
  * 
  */
     private void connect()
     {
-        cluster = Cluster.builder().addContactPoint("127.0.0.1").build();
+       cluster = Cluster.builder().addContactPoint("127.0.0.1").build();
         session = cluster.connect("files");
 
     }
@@ -60,6 +62,16 @@ CREATE TABLE files ( filename text, file blob,  seq_id int , timeStamp double , 
         
     	
     }
+    
+    public ResultSet getLatestRecords(long timestamp){
+    	Statement statement = new SimpleStatement("select fileName, file, seq_id , timestamp from files where timestamp > "+timestamp+" ALLOW FILTERING");
+   
+    	ResultSet resutls = session.execute( statement );
+        return resutls;
+        
+    	
+    }
+    
     
     public ResultSet insert(String filename, ByteBuffer byteBuffer, int seq_id, long timeStamp)
     {
@@ -88,15 +100,21 @@ CREATE TABLE files ( filename text, file blob,  seq_id int , timeStamp double , 
         	CassandraDAO dao = new CassandraDAO();
         	File file = new File("/Users/waadjaradat/Documents/workspaceNetty/fluffy/runtime/route-1.conf");
         	ByteBuffer fileByteBuffer;
-			//	fileByteBuffer = ByteBuffer.wrap( FileUtils.readFileToByteArray( file) );
-			//	dao.insert("test", fileByteBuffer,1, System.currentTimeMillis());
-				Row fileRow = dao.get("files");
-				if ( fileRow != null ) {
-			      //  ByteBuffer fileBytes = fileRow.getDouble("timeStamp");
-					//ouble time =  fileRow.getDouble("timeStamp");
-			   //     System.out.println(fileRow.getDouble("a"));
-			       // File f = convertToFile( fileBytes );
-			    }
+			try {
+				fileByteBuffer = ByteBuffer.wrap( FileUtils.readFileToByteArray( file) );
+			
+				dao.insert("test", fileByteBuffer,1, System.currentTimeMillis());
+				long latest = dao.getLatestTimeStamp();
+				
+        	
+        	ResultSet results = dao.getLatestRecords(latest);
+				for (Row r : results){
+					System.out.println(r.getInt("seq_id"));
+				}
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
         	
         	
         }
