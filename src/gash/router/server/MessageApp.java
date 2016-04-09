@@ -31,8 +31,6 @@ public class MessageApp {
 			System.out.println("usage: server <config file>");
 			System.exit(1);
 		}
-
-//		File cf = new File("runtime/route-6.conf");
 		File cf = new File(args[0]);
 		try {
 			MessageServer svr = new MessageServer(cf);

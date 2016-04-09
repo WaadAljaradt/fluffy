@@ -65,8 +65,9 @@ public class InboundCommandThread extends Thread {
 
                 if (msg instanceof Pipe.CommandMessage) {
                     Pipe.CommandMessage commandMessage = ((Pipe.CommandMessage) msg);
-                    
-        			if(commandMessage.hasSave()){
+        			
+                    /* Handle file save/upload request*/
+                    if(commandMessage.hasSave()){
                     	
         				if (commandMessage.hasData()) {
         					
@@ -82,6 +83,13 @@ public class InboundCommandThread extends Thread {
 
                                     ByteBuffer fileByteBuffer = ByteBuffer.wrap( savebytes);
                                     ResultSet insertq = dao.insert(commandMessage.getData().getFilename(), fileByteBuffer, (int)commandMessage.getData().getChunkblockid(), timeStamp);
+                                    Common.Header.Builder hb = Common.Header.newBuilder();
+                                    hb.setNodeId(inboundCommandQueue.getState().getConf().getNodeId());
+                                    hb.setDestination(-1);
+                                    hb.setTime(System.currentTimeMillis());
+                                    CommandMessage.Builder rb = CommandMessage.newBuilder();
+                                    rb.setHeader(hb);
+
                                     if(insertq.wasApplied()){
                                         // duplicate to other nodes
                                         Work.Task.Builder taskBuilder = Work.Task.newBuilder();
@@ -90,11 +98,6 @@ public class InboundCommandThread extends Thread {
                                         taskBuilder.setData(commandMessage.getData().getData());
                                         taskBuilder.setSeqId((int)commandMessage.getData().getChunkblockid());
                                         taskBuilder.setSeriesId(timeStamp);
-
-                                        Common.Header.Builder hb = Common.Header.newBuilder();
-                                        hb.setNodeId(inboundCommandQueue.getState().getConf().getNodeId());
-                                        hb.setDestination(-1);
-                                        hb.setTime(System.currentTimeMillis());
 
                                         Work.WorkMessage.Builder wb = Work.WorkMessage.newBuilder();
                                         wb.setHeader(hb);
@@ -105,10 +108,10 @@ public class InboundCommandThread extends Thread {
                                         EdgeMonitor.broadcastMessage(wb.build());
 
                                         //TODO acknowledge the client
-                                        
-                                        CommandMessage.Builder rb = CommandMessage.newBuilder();
-                                        rb.setHeader(hb);
-                                        
+
+                                        /*Send client an acknowledgement for each chunk.
+                                         * Also send acknowledgement when all chunks of files are stored.
+                                         * */
                                         if(!chunkCountMapping.containsKey(commandMessage.getUsername())){
                 							chunkCountMapping.put(commandMessage.getUsername(), 1);
                 							if(commandMessage.getData().getTotalchunks() == 1){
@@ -127,23 +130,59 @@ public class InboundCommandThread extends Thread {
                     							rb.setMessage("Chunk " + counts + " Stored successfully.");
                 							}
                 						}
+                                        //TODO Need to create outbound command queue.
                 						conn.writeAndFlush(rb.build());
+                                    }
+                                    else {
+                                    	
+                                        Failure.Builder flr = Failure.newBuilder();
+                                        flr.setMessage("Something went wrong in storing file!");
+                        				rb.setErr(flr);
+                        				conn.writeAndFlush(rb.build());
+                                        
                                     }
                                 }
                             }
                             else
                             {
-                                Work.Task.Builder taskBuilder = Work.Task.newBuilder();
+                            	//TODO Need to find a better way to acknowledge the client.
+                            	
+                            	/*Send acknowledgement to client before forwarding it to the leader 
+                            	 * assuming that leader is available
+                            	 * */
+                            	Common.Header.Builder hb = Common.Header.newBuilder();
+                                hb.setNodeId(inboundCommandQueue.getState().getConf().getNodeId());
+                                hb.setDestination(-1);
+                                hb.setTime(System.currentTimeMillis());
+                            	CommandMessage.Builder rb = CommandMessage.newBuilder();
+                                rb.setHeader(hb);
+                                
+                                if(!chunkCountMapping.containsKey(commandMessage.getUsername())){
+        							chunkCountMapping.put(commandMessage.getUsername(), 1);
+        							if(commandMessage.getData().getTotalchunks() == 1){
+        								rb.setMessage("File Saved Successfully");
+        							}else{
+        								rb.setMessage("Chunk 1 has been stored." );
+        							}
+        						}else{
+        							int counts = (chunkCountMapping.get(commandMessage.getUsername()));
+        							counts++;
+        							if(chunkCountMapping.get(commandMessage.getUsername()) == commandMessage.getData().getTotalchunks()){
+        								chunkCountMapping.remove(commandMessage.getUsername()); //removing client from hashmap for chunkCalculation.
+        								rb.setMessage("Chunk " + (counts) + " Stored successfully.  \n Whole File Stored Successfully");
+        							}else{
+        								chunkCountMapping.put(commandMessage.getUsername(), counts);
+            							rb.setMessage("Chunk " + counts + " Stored successfully.");
+        							}
+        						}
+        						conn.writeAndFlush(rb.build());
+
+        						Work.Task.Builder taskBuilder = Work.Task.newBuilder();
                                 taskBuilder.setTaskType(Work.Task.TaskType.SAVEDATATOLEADER);
                                 taskBuilder.setFilename(commandMessage.getData().getFilename());
                                 taskBuilder.setData(commandMessage.getData().getData());
                                 taskBuilder.setSeqId((int)commandMessage.getData().getChunkblockid());
                                 taskBuilder.setSeriesId(System.currentTimeMillis());
-
-                                Common.Header.Builder hb = Common.Header.newBuilder();
-                                hb.setNodeId(inboundCommandQueue.getState().getConf().getNodeId());
-                                hb.setDestination(-1);
-                                hb.setTime(System.currentTimeMillis());
 
                                 Work.WorkMessage.Builder wb = Work.WorkMessage.newBuilder();
                                 wb.setHeader(hb);
@@ -156,6 +195,8 @@ public class InboundCommandThread extends Thread {
                         
         				}
                     }
+
+        			/* Handle file retrieval/download request*/
         			else if (commandMessage.hasRetrieve()) {
         				boolean hasSavedData = false;
         				if(commandMessage.getData().hasFilename()) {
@@ -181,17 +222,15 @@ public class InboundCommandThread extends Thread {
             				FileDataInfo.Builder fd = FileDataInfo.newBuilder();
         					com.datastax.driver.core.ResultSet rs = dao.getMatchingFiles(commandMessage.getData().getFilename());
         					Long fileCount = dao.getFileCount(commandMessage.getData().getFilename());
-        					System.out.println("File Count = " +  fileCount);
-        					System.out.println("Before the row retriver");
             				for(Row row: rs) {
                 				fd.setFilename(row.getString("filename"));
-            					System.out.println("Filename " + row.getString("filename"));
                 				byte[] data = Bytes.getArray(row.getBytes("file"));
                 				ByteString bs = ByteString.copyFrom(data);
                 				fd.setData(bs);
                 				fd.setChunkblockid(row.getInt("seq_id"));
-                				fd.setTotalchunks(fileCount); //adding How many chunks are required.
+                				fd.setTotalchunks(fileCount); //adding how many chunks are required.
                 				rb.setData(fd);
+                				rb.setMessage("Sending chunk " + row.getInt("seq_id"));
                 				conn.writeAndFlush(rb.build());
                         	}
                         }

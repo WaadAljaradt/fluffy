@@ -40,7 +40,6 @@ you have to drop your table to add the new primary key and create it again
     {
        cluster = Cluster.builder().addContactPoint("127.0.0.1").build();
         session = cluster.connect("files");
-
     }
 
     protected Session getSession()
@@ -49,61 +48,46 @@ you have to drop your table to add the new primary key and create it again
         {
             connect();
         }
-
         return session;
     }
     
     public Long getLatestTimeStamp(){
     	Statement statement = new SimpleStatement("select MAX(timestamp) as a from files");
-   
     	Row resutls = session.execute( statement ).one();
     	Long latest = (long) resutls.getDouble("a");
-        return latest;
-        
-    	
+        return latest;	
     }
     
     public ResultSet getLatestRecords(long timestamp){
     	Statement statement = new SimpleStatement("select fileName, file, seq_id , timestamp from files where timestamp > "+timestamp+" ALLOW FILTERING");
-   
     	ResultSet resutls = session.execute( statement );
-        return resutls;
-        
-    	
+        return resutls;	
     }
-    
     
     public ResultSet insert(String filename, ByteBuffer byteBuffer, int seq_id, long timeStamp)
     {
         Statement insertFile = QueryBuilder.insertInto( "files" ).value( "filename", filename ).value( "file", byteBuffer ).value("seq_id", seq_id).value("timeStamp", timeStamp);
         ResultSet resutls = session.execute( insertFile );
         return resutls;
-
-        //	session.execute("INSERT INTO users (key,value) VALUES ('"+key+"', '"+value+"')");
+        //	Similar to session.execute("INSERT INTO users (key,value) VALUES ('"+key+"', '"+value+"')");
     }
 
     public Row get(String filename)
     {
         Statement readFile = QueryBuilder.select( "file" ).from( "files" ).where( QueryBuilder.eq( "filename", filename ) );
         Row fileRow = session.execute( readFile ).one();
- /*   if ( fileRow != null ) {
-        ByteBuffer fileBytes = fileRow.getBytes( "file" );
-        File f = convertToFile( fileBytes );
-    }
-    	connect();
-  ResultSet results = session.execute("SELECT * FROM users WHERE key='"+key+"'");
-  */
         return fileRow;
     }
 
+    // Return matching filename chunks from database
     public ResultSet getMatchingFiles(String filename) {
-//    	Statement readFile = QueryBuilder.select( "*" ).from( "files" ).where( QueryBuilder.eq( "filename", filename ) );
     	Statement readFile = new SimpleStatement("select filename, file, seq_id from files where filename = '" + filename +"'");
     	ResultSet results= session.execute(readFile);
     	
     	return results;
     }
     
+    //Return counts of file chunk of a particular file
     public long getFileCount(String filename) {
     	Statement readFile = new SimpleStatement("select count(*) as c from files where filename = '" + filename +"'");
     	Row results= session.execute(readFile).one();
@@ -130,12 +114,8 @@ you have to drop your table to add the new primary key and create it again
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-        	
-        	
         }
-        	
-        	
-        	
+ 	
 /*	Cluster cluster;
 	Session session;
 	

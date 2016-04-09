@@ -45,20 +45,11 @@ public final class Filedata {
     long getChunkblockid();
 
     /**
-     * <code>optional int64 filesize = 4;</code>
-     */
-    boolean hasFilesize();
-    /**
-     * <code>optional int64 filesize = 4;</code>
-     */
-    long getFilesize();
-
-    /**
-     * <code>optional int64 totalchunks = 5;</code>
+     * <code>optional int64 totalchunks = 4;</code>
      */
     boolean hasTotalchunks();
     /**
-     * <code>optional int64 totalchunks = 5;</code>
+     * <code>optional int64 totalchunks = 4;</code>
      */
     long getTotalchunks();
   }
@@ -132,11 +123,6 @@ public final class Filedata {
             }
             case 32: {
               bitField0_ |= 0x00000008;
-              filesize_ = input.readInt64();
-              break;
-            }
-            case 40: {
-              bitField0_ |= 0x00000010;
               totalchunks_ = input.readInt64();
               break;
             }
@@ -252,31 +238,16 @@ public final class Filedata {
       return chunkblockid_;
     }
 
-    public static final int FILESIZE_FIELD_NUMBER = 4;
-    private long filesize_;
+    public static final int TOTALCHUNKS_FIELD_NUMBER = 4;
+    private long totalchunks_;
     /**
-     * <code>optional int64 filesize = 4;</code>
+     * <code>optional int64 totalchunks = 4;</code>
      */
-    public boolean hasFilesize() {
+    public boolean hasTotalchunks() {
       return ((bitField0_ & 0x00000008) == 0x00000008);
     }
     /**
-     * <code>optional int64 filesize = 4;</code>
-     */
-    public long getFilesize() {
-      return filesize_;
-    }
-
-    public static final int TOTALCHUNKS_FIELD_NUMBER = 5;
-    private long totalchunks_;
-    /**
-     * <code>optional int64 totalchunks = 5;</code>
-     */
-    public boolean hasTotalchunks() {
-      return ((bitField0_ & 0x00000010) == 0x00000010);
-    }
-    /**
-     * <code>optional int64 totalchunks = 5;</code>
+     * <code>optional int64 totalchunks = 4;</code>
      */
     public long getTotalchunks() {
       return totalchunks_;
@@ -286,7 +257,6 @@ public final class Filedata {
       filename_ = "";
       data_ = com.google.protobuf.ByteString.EMPTY;
       chunkblockid_ = 0L;
-      filesize_ = 0L;
       totalchunks_ = 0L;
     }
     private byte memoizedIsInitialized = -1;
@@ -316,10 +286,7 @@ public final class Filedata {
         output.writeInt64(3, chunkblockid_);
       }
       if (((bitField0_ & 0x00000008) == 0x00000008)) {
-        output.writeInt64(4, filesize_);
-      }
-      if (((bitField0_ & 0x00000010) == 0x00000010)) {
-        output.writeInt64(5, totalchunks_);
+        output.writeInt64(4, totalchunks_);
       }
       getUnknownFields().writeTo(output);
     }
@@ -344,11 +311,7 @@ public final class Filedata {
       }
       if (((bitField0_ & 0x00000008) == 0x00000008)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeInt64Size(4, filesize_);
-      }
-      if (((bitField0_ & 0x00000010) == 0x00000010)) {
-        size += com.google.protobuf.CodedOutputStream
-          .computeInt64Size(5, totalchunks_);
+          .computeInt64Size(4, totalchunks_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -473,10 +436,8 @@ public final class Filedata {
         bitField0_ = (bitField0_ & ~0x00000002);
         chunkblockid_ = 0L;
         bitField0_ = (bitField0_ & ~0x00000004);
-        filesize_ = 0L;
-        bitField0_ = (bitField0_ & ~0x00000008);
         totalchunks_ = 0L;
-        bitField0_ = (bitField0_ & ~0x00000010);
+        bitField0_ = (bitField0_ & ~0x00000008);
         return this;
       }
 
@@ -520,10 +481,6 @@ public final class Filedata {
         if (((from_bitField0_ & 0x00000008) == 0x00000008)) {
           to_bitField0_ |= 0x00000008;
         }
-        result.filesize_ = filesize_;
-        if (((from_bitField0_ & 0x00000010) == 0x00000010)) {
-          to_bitField0_ |= 0x00000010;
-        }
         result.totalchunks_ = totalchunks_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
@@ -551,9 +508,6 @@ public final class Filedata {
         }
         if (other.hasChunkblockid()) {
           setChunkblockid(other.getChunkblockid());
-        }
-        if (other.hasFilesize()) {
-          setFilesize(other.getFilesize());
         }
         if (other.hasTotalchunks()) {
           setTotalchunks(other.getTotalchunks());
@@ -732,65 +686,33 @@ public final class Filedata {
         return this;
       }
 
-      private long filesize_ ;
+      private long totalchunks_ ;
       /**
-       * <code>optional int64 filesize = 4;</code>
+       * <code>optional int64 totalchunks = 4;</code>
        */
-      public boolean hasFilesize() {
+      public boolean hasTotalchunks() {
         return ((bitField0_ & 0x00000008) == 0x00000008);
       }
       /**
-       * <code>optional int64 filesize = 4;</code>
-       */
-      public long getFilesize() {
-        return filesize_;
-      }
-      /**
-       * <code>optional int64 filesize = 4;</code>
-       */
-      public Builder setFilesize(long value) {
-        bitField0_ |= 0x00000008;
-        filesize_ = value;
-        onChanged();
-        return this;
-      }
-      /**
-       * <code>optional int64 filesize = 4;</code>
-       */
-      public Builder clearFilesize() {
-        bitField0_ = (bitField0_ & ~0x00000008);
-        filesize_ = 0L;
-        onChanged();
-        return this;
-      }
-
-      private long totalchunks_ ;
-      /**
-       * <code>optional int64 totalchunks = 5;</code>
-       */
-      public boolean hasTotalchunks() {
-        return ((bitField0_ & 0x00000010) == 0x00000010);
-      }
-      /**
-       * <code>optional int64 totalchunks = 5;</code>
+       * <code>optional int64 totalchunks = 4;</code>
        */
       public long getTotalchunks() {
         return totalchunks_;
       }
       /**
-       * <code>optional int64 totalchunks = 5;</code>
+       * <code>optional int64 totalchunks = 4;</code>
        */
       public Builder setTotalchunks(long value) {
-        bitField0_ |= 0x00000010;
+        bitField0_ |= 0x00000008;
         totalchunks_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional int64 totalchunks = 5;</code>
+       * <code>optional int64 totalchunks = 4;</code>
        */
       public Builder clearTotalchunks() {
-        bitField0_ = (bitField0_ & ~0x00000010);
+        bitField0_ = (bitField0_ & ~0x00000008);
         totalchunks_ = 0L;
         onChanged();
         return this;
@@ -821,10 +743,10 @@ public final class Filedata {
       descriptor;
   static {
     java.lang.String[] descriptorData = {
-      "\n\016filedata.proto\032\014common.proto\"k\n\014FileDa" +
+      "\n\016filedata.proto\032\014common.proto\"Y\n\014FileDa" +
       "taInfo\022\020\n\010filename\030\001 \002(\t\022\014\n\004data\030\002 \001(\014\022\024" +
-      "\n\014chunkblockid\030\003 \001(\003\022\020\n\010filesize\030\004 \001(\003\022\023" +
-      "\n\013totalchunks\030\005 \001(\003B\021\n\rpipe.filedataH\001"
+      "\n\014chunkblockid\030\003 \001(\003\022\023\n\013totalchunks\030\004 \001(" +
+      "\003B\021\n\rpipe.filedataH\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -844,7 +766,7 @@ public final class Filedata {
     internal_static_FileDataInfo_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_FileDataInfo_descriptor,
-        new java.lang.String[] { "Filename", "Data", "Chunkblockid", "Filesize", "Totalchunks", });
+        new java.lang.String[] { "Filename", "Data", "Chunkblockid", "Totalchunks", });
     pipe.common.Common.getDescriptor();
   }
 
