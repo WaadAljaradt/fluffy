@@ -253,7 +253,34 @@ public class ElectionHandler {
         }
         else if(message.getLeader().getAction() == Election.LeaderStatus.LeaderQuery.THELEADERIS) {
             leaderNodeId = message.getLeader().getLeaderId();
+
+            checkForNewData();
         }
+    }
+
+    public void checkForNewData()
+    {
+        // get the latest timestamp and send it to the leader for syncing
+
+        CassandraDAO cassandraDAO = new CassandraDAO();
+        long latestTimeStamp = cassandraDAO.getLatestTimeStamp();
+
+        Work.WorkState.Builder sb = Work.WorkState.newBuilder();
+        sb.setEnqueued(-1);
+        sb.setProcessed(-1);
+
+        Common.Header.Builder hb = Common.Header.newBuilder();
+        hb.setNodeId(conf.getNodeId());
+        hb.setDestination(leaderNodeId);
+        hb.setTime(System.currentTimeMillis());
+
+        Work.WorkMessage.Builder wb = Work.WorkMessage.newBuilder();
+        wb.setHeader(hb);
+        wb.setSyncTimeStamp(latestTimeStamp);
+
+        wb.setSecret(1000l);
+
+        EdgeMonitor.sendMessage(leaderNodeId, wb.build());
     }
 
     public void concludeWith(boolean success, Integer leaderID) {
