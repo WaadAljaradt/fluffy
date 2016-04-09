@@ -15,11 +15,15 @@
  */
 package gash.router.app;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Map;
+import java.util.StringTokenizer;
 import java.util.TreeMap;
 
 import com.google.protobuf.ByteString;
@@ -65,10 +69,6 @@ public class DemoApp implements CommListener {
 		if(msg.hasErr()) {
 			System.out.println("Errors: ---> " + msg.getErr().getMessage());
 		}
-		
-		else if(msg.hasMessage()) {
-			System.out.println("Response received from server: ---> " + msg.getMessage());			
-		}
 		/* Logic to handle file retrieval on client side
 		 * Assemble all the chunks on client side
 		 * And then pass it on to FileOutputStream to create a new file
@@ -78,6 +78,7 @@ public class DemoApp implements CommListener {
 				if (msg.getData().hasFilename()) {
 					
 					tm.put((int)msg.getData().getChunkblockid(), msg.getData().getData());
+					System.out.println("Response received from server: ---> " + msg.getMessage());
 					if(tm.size() == msg.getData().getTotalchunks()) {
 						File file = new File(fileDownloadPath + msg.getData().getFilename());
 						try {
@@ -101,6 +102,9 @@ public class DemoApp implements CommListener {
 				}
 			}			
 		}
+		else if(msg.hasMessage()) {
+			System.out.println("Response received from server: ---> " + msg.getMessage());
+		}
 	}
 
 	/**
@@ -115,19 +119,15 @@ public class DemoApp implements CommListener {
 		try {
 			MessageClient mc = new MessageClient(host, port);
 			DemoApp da = new DemoApp(mc);
-
 			// do stuff w/ the connection
 			if(args[1].equals("upload")) {
-				da.upload(args[2], args[0]);				
+				da.upload(args[2], args[0]);
 			}
 
 			if(args[1].equals("download")) {
 				fileDownloadPath = args[3];
 				da.download(args[2]);	
 			}
-			System.out.println("\n** exiting in 10 seconds. **");
-			System.out.flush();
-//			Thread.sleep(10 * 1000);
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {

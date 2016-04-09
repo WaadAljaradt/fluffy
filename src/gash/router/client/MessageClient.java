@@ -124,7 +124,7 @@ public class MessageClient {
 				}
 				totalChunks = totalChunks + extraChunk;
 				BufferedInputStream in = new BufferedInputStream(fis);
-				
+
 				/*To make sure that we don't send extra bytes while sending the chunk
 				 * First send full chunks and then send one of the remaining bytes chunk
 				 * */
