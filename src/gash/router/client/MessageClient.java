@@ -77,9 +77,7 @@ public class MessageClient {
 
 	public void uploadFile(String filepath, String username) {
 		// construct the message to send
-		
-		System.out.println("Sending a file");
-		
+
 		File file = new File(filepath);
 		long fileLength = file.length(); // File Length
 		long chunkLength = 1024 * 1024; // sets chunkLength Size
@@ -96,18 +94,21 @@ public class MessageClient {
 		rb.setUsername(username);
 		try {
 			FileInputStream fis = new FileInputStream(file);
+			/*Check if the file length size is less than 1 MB
+			 * Send only one chunk in this case
+			 * */
 			if(fileLength < chunkLength) {
 				byte[] dataBuffer = new byte[(int)fileLength];
 				fis.read(dataBuffer);
+
 				ByteString bs = ByteString.copyFrom(dataBuffer);
 				FileDataInfo.Builder fd = FileDataInfo.newBuilder();
 				Path p = Paths.get(filepath);
 				String fname = p.getFileName().toString();
-				System.out.println(fname);
+
 				fd.setFilename(fname);
 				fd.setData(bs);
 				fd.setChunkblockid(0);
-				fd.setFilesize(fileLength);
 				fd.setTotalchunks(1); //only one chunk is required.
 				rb.setData(fd);
 				CommConnection.getInstance().enqueue(rb.build());
@@ -123,7 +124,11 @@ public class MessageClient {
 				}
 				totalChunks = totalChunks + extraChunk;
 				BufferedInputStream in = new BufferedInputStream(fis);
-				//to make sure that we don't send extra bytes while sending the chunk
+				
+				/*To make sure that we don't send extra bytes while sending the chunk
+				 * First send full chunks and then send one of the remaining bytes chunk
+				 * */
+				
 				while(count < (totalChunks-1)) {
 					bytesread = in.read(dataBuffer);
 					ByteString bs = ByteString.copyFrom(dataBuffer);						
@@ -135,11 +140,9 @@ public class MessageClient {
 					fd.setFilename(fname);
 					fd.setData(bs);
 					fd.setChunkblockid(count);
-					fd.setFilesize(fileLength);
-					fd.setTotalchunks(totalChunks); //adding How many chunks are required.
+					fd.setTotalchunks(totalChunks); //adding how many chunks are required.
 					rb.setData(fd);
 					CommConnection.getInstance().enqueue(rb.build());
-					System.out.println("Chunk Counts " + count);
 				}
 				int extraChunkLength = (int)(fileLength%chunkLength);
 				dataBuffer = new byte[extraChunkLength];
@@ -153,46 +156,11 @@ public class MessageClient {
 				fd.setFilename(fname);
 				fd.setData(bs);
 				fd.setChunkblockid(count);
-				fd.setFilesize(fileLength);
-				fd.setTotalchunks(totalChunks); //adding How many chunks are required.
+				fd.setTotalchunks(totalChunks); //adding how many chunks are required.
 				rb.setData(fd);
 				CommConnection.getInstance().enqueue(rb.build());				
-//				int count = 0;
-//				byte[] dataBuffer = new byte[(int)chunkLength];
-//				int bytesread = 0;
-//				int extraChunk = 0;
-//				BufferedInputStream in = new BufferedInputStream(fis);
-//				while((bytesread = in.read(dataBuffer)) !=-1) {
-//					ByteString bs = ByteString.copyFrom(dataBuffer);						
-//					FileDataInfo.Builder fd = FileDataInfo.newBuilder();
-//					Path p = Paths.get(filepath);
-//					String fname = p.getFileName().toString();
-//					System.out.println(fname);
-//					count++;
-//					fd.setFilename(fname);
-//					fd.setData(bs);
-//					fd.setChunkblockid(count);
-//					fd.setFilesize(fileLength);
-//					if(fileLength%chunkLength > 0) {
-//						extraChunk = 1;
-//					}
-//					fd.setTotalchunks((long)(fileLength/chunkLength)+extraChunk); //adding How many chunks are required.
-//					rb.setData(fd);
-//					CommConnection.getInstance().enqueue(rb.build());
-//					System.out.println("Chunk Counts " + count);
-//				}
 			}
 			fis.close();			
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		
-		try {
-			// direct no queue
-			// CommConnection.getInstance().write(rb.build());
-
-			// using queue
-//			CommConnection.getInstance().enqueue(rb.build());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

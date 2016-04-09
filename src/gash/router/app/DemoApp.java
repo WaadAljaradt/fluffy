@@ -44,7 +44,7 @@ public class DemoApp implements CommListener {
 		this.mc.addListener(this);
 	}
 
-	private void ping(String filepath, String username) {
+	private void upload(String filepath, String username) {
 		// test round-trip overhead (note overhead for initial connection)
 		mc.uploadFile(filepath, username);
 	}
@@ -58,17 +58,22 @@ public class DemoApp implements CommListener {
 		return "demo";
 	}
 
+	//TODO Create Inbound Command Queue.
 	@Override
 	public void onMessage(CommandMessage msg) {
 		
-//		if(msg.hasMessage()) {
-//			System.out.println("---> " + msg.getMessage());
-//		}
+		if(msg.hasErr()) {
+			System.out.println("Errors: ---> " + msg.getErr().getMessage());
+		}
+		
+		else if(msg.hasMessage()) {
+			System.out.println("Response received from server: ---> " + msg.getMessage());			
+		}
 		/* Logic to handle file retrieval on client side
 		 * Assemble all the chunks on client side
 		 * And then pass it on to FileOutputStream to create a new file
 		 * */
-		if(msg.hasRetrieve()) {
+		else if(msg.hasRetrieve()) {
 			if (msg.hasData()) {
 				if (msg.getData().hasFilename()) {
 					
@@ -113,7 +118,7 @@ public class DemoApp implements CommListener {
 
 			// do stuff w/ the connection
 			if(args[1].equals("upload")) {
-				da.ping(args[2], args[0]);				
+				da.upload(args[2], args[0]);				
 			}
 
 			if(args[1].equals("download")) {
