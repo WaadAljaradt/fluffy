@@ -1,6 +1,20 @@
 # fluffy
 Team project for CMPE275.
 
+#Setting up Cassandra Database
+Create a new database named Files by running following query in command line tool of cassandra.
+
+CREATE KEYSPACE files WITH replication = {
+      'class': 'SimpleStrategy',
+      'replication_factor': '1'
+    };
+    
+Run the following query after entering in to the data base through cassandra command line tool.
+
+CREATE TABLE files ( filename text, file blob,  seq_id int , timeStamp double ,  PRIMARY KEY (filename,timeStamp));
+
+
+
 #To build proto files
 Change proto home PROTOC_HOME=/usr/local/bin/protoc in the "build_pb.sh"
 Run "build_pb.sh"
