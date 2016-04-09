@@ -189,10 +189,6 @@ public class InboundWorkerThread extends Thread {
                     {
                         long latestTimeStampFromNode = workMessage.getSyncTimeStamp();
 
-                        Calendar cal = Calendar.getInstance();
-                        cal.add(Calendar.DAY_OF_MONTH, -1);
-                        latestTimeStampFromNode = cal.getTimeInMillis();
-
                         ResultSet results = dao.getLatestRecords(latestTimeStampFromNode);
 
                         for (Row r : results)
@@ -201,7 +197,7 @@ public class InboundWorkerThread extends Thread {
                             Work.Task.Builder taskBuilder = Work.Task.newBuilder();
                             taskBuilder.setTaskType(Work.Task.TaskType.SAVEDATATONODE);
                             taskBuilder.setFilename(r.getString("filename"));
-//                            taskBuilder.setData(ByteString.copyFrom(r.getBytes("file").array()));
+                            taskBuilder.setData(ByteString.copyFrom(r.getBytes("file").array()));
                             taskBuilder.setSeriesId((long)r.getDouble("timestamp"));
                             taskBuilder.setSeqId(r.getInt("seq_id"));
 
