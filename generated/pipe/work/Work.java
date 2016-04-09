@@ -2099,6 +2099,15 @@ public final class Work {
      * <code>optional .LeaderElection election = 9;</code>
      */
     pipe.election.Election.LeaderElectionOrBuilder getElectionOrBuilder();
+
+    /**
+     * <code>optional int64 syncTimeStamp = 10;</code>
+     */
+    boolean hasSyncTimeStamp();
+    /**
+     * <code>optional int64 syncTimeStamp = 10;</code>
+     */
+    long getSyncTimeStamp();
   }
   /**
    * Protobuf type {@code WorkMessage}
@@ -2257,6 +2266,11 @@ public final class Work {
               payloadCase_ = 9;
               break;
             }
+            case 80: {
+              payloadCase_ = 10;
+              payload_ = input.readInt64();
+              break;
+            }
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
@@ -2308,6 +2322,7 @@ public final class Work {
       STATE(7),
       LEADER(8),
       ELECTION(9),
+      SYNCTIMESTAMP(10),
       PAYLOAD_NOT_SET(0);
       private int value = 0;
       private PayloadCase(int value) {
@@ -2322,6 +2337,7 @@ public final class Work {
           case 7: return STATE;
           case 8: return LEADER;
           case 9: return ELECTION;
+          case 10: return SYNCTIMESTAMP;
           case 0: return PAYLOAD_NOT_SET;
           default: throw new java.lang.IllegalArgumentException(
             "Value is undefined for this oneof enum.");
@@ -2567,6 +2583,23 @@ public final class Work {
       return pipe.election.Election.LeaderElection.getDefaultInstance();
     }
 
+    public static final int SYNCTIMESTAMP_FIELD_NUMBER = 10;
+    /**
+     * <code>optional int64 syncTimeStamp = 10;</code>
+     */
+    public boolean hasSyncTimeStamp() {
+      return payloadCase_ == 10;
+    }
+    /**
+     * <code>optional int64 syncTimeStamp = 10;</code>
+     */
+    public long getSyncTimeStamp() {
+      if (payloadCase_ == 10) {
+        return (java.lang.Long) payload_;
+      }
+      return 0L;
+    }
+
     private void initFields() {
       header_ = pipe.common.Common.Header.getDefaultInstance();
       secret_ = 0L;
@@ -2660,6 +2693,10 @@ public final class Work {
       if (payloadCase_ == 9) {
         output.writeMessage(9, (pipe.election.Election.LeaderElection) payload_);
       }
+      if (payloadCase_ == 10) {
+        output.writeInt64(
+            10, (long)((java.lang.Long) payload_));
+      }
       getUnknownFields().writeTo(output);
     }
 
@@ -2705,6 +2742,11 @@ public final class Work {
       if (payloadCase_ == 9) {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(9, (pipe.election.Election.LeaderElection) payload_);
+      }
+      if (payloadCase_ == 10) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt64Size(
+              10, (long)((java.lang.Long) payload_));
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -2923,6 +2965,9 @@ public final class Work {
             result.payload_ = electionBuilder_.build();
           }
         }
+        if (payloadCase_ == 10) {
+          result.payload_ = payload_;
+        }
         result.bitField0_ = to_bitField0_;
         result.payloadCase_ = payloadCase_;
         onBuilt();
@@ -2973,6 +3018,10 @@ public final class Work {
           }
           case ELECTION: {
             mergeElection(other.getElection());
+            break;
+          }
+          case SYNCTIMESTAMP: {
+            setSyncTimeStamp(other.getSyncTimeStamp());
             break;
           }
           case PAYLOAD_NOT_SET: {
@@ -4115,6 +4164,42 @@ public final class Work {
         return electionBuilder_;
       }
 
+      /**
+       * <code>optional int64 syncTimeStamp = 10;</code>
+       */
+      public boolean hasSyncTimeStamp() {
+        return payloadCase_ == 10;
+      }
+      /**
+       * <code>optional int64 syncTimeStamp = 10;</code>
+       */
+      public long getSyncTimeStamp() {
+        if (payloadCase_ == 10) {
+          return (java.lang.Long) payload_;
+        }
+        return 0L;
+      }
+      /**
+       * <code>optional int64 syncTimeStamp = 10;</code>
+       */
+      public Builder setSyncTimeStamp(long value) {
+        payloadCase_ = 10;
+        payload_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional int64 syncTimeStamp = 10;</code>
+       */
+      public Builder clearSyncTimeStamp() {
+        if (payloadCase_ == 10) {
+          payloadCase_ = 0;
+          payload_ = null;
+          onChanged();
+        }
+        return this;
+      }
+
       // @@protoc_insertion_point(builder_scope:WorkMessage)
     }
 
@@ -4164,14 +4249,15 @@ public final class Work {
       "\001(\014\"\212\001\n\010TaskType\022\024\n\020SAVEDATATOLEADER\020\001\022\022" +
       "\n\016SAVEDATATONODE\020\002\022\023\n\017DATASAVEDBYNODE\020\003\022" +
       "\027\n\023DATASAVEDBYEVERYONE\020\004\022\024\n\020DOYOUHAVETHE" +
-      "DATA\020\005\022\020\n\014FOUNDTHEDATA\020\006\"\200\002\n\013WorkMessage",
+      "DATA\020\005\022\020\n\014FOUNDTHEDATA\020\006\"\231\002\n\013WorkMessage",
       "\022\027\n\006header\030\001 \002(\0132\007.Header\022\016\n\006secret\030\002 \002(" +
       "\003\022\027\n\003err\030\003 \001(\0132\010.FailureH\000\022\016\n\004ping\030\004 \001(\010" +
       "H\000\022\032\n\004beat\030\005 \001(\0132\n.HeartbeatH\000\022\025\n\004task\030\006" +
       " \001(\0132\005.TaskH\000\022\033\n\005state\030\007 \001(\0132\n.WorkState" +
       "H\000\022\037\n\006leader\030\010 \001(\0132\r.LeaderStatusH\000\022#\n\010e" +
-      "lection\030\t \001(\0132\017.LeaderElectionH\000B\t\n\007payl" +
-      "oadB\r\n\tpipe.workH\001"
+      "lection\030\t \001(\0132\017.LeaderElectionH\000\022\027\n\rsync" +
+      "TimeStamp\030\n \001(\003H\000B\t\n\007payloadB\r\n\tpipe.wor" +
+      "kH\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -4210,7 +4296,7 @@ public final class Work {
     internal_static_WorkMessage_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_WorkMessage_descriptor,
-        new java.lang.String[] { "Header", "Secret", "Err", "Ping", "Beat", "Task", "State", "Leader", "Election", "Payload", });
+        new java.lang.String[] { "Header", "Secret", "Err", "Ping", "Beat", "Task", "State", "Leader", "Election", "SyncTimeStamp", "Payload", });
     pipe.common.Common.getDescriptor();
     pipe.election.Election.getDescriptor();
   }

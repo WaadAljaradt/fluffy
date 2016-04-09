@@ -58,5 +58,6 @@ message WorkMessage {
       WorkState state = 7;
       LeaderStatus leader = 8;
       LeaderElection election = 9;
+      int64 syncTimeStamp = 10;
    }
 }
