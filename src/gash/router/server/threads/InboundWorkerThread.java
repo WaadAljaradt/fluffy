@@ -1,6 +1,7 @@
 package gash.router.server.threads;
 
 import com.datastax.driver.core.ResultSet;
+import com.datastax.driver.core.Row;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.GeneratedMessage;
 import gash.router.server.CassandraDAO;
@@ -16,6 +17,9 @@ import pipe.common.Common;
 import pipe.work.Work;
 
 import java.nio.ByteBuffer;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
 
 /**
  * Created by patel on 4/5/2016.
@@ -180,6 +184,41 @@ public class InboundWorkerThread extends Thread {
 
                         ElectionHandler.getInstance().handleElection(workMessage);
 
+                    }
+                    else if(workMessage.hasSyncTimeStamp())
+                    {
+                        long latestTimeStampFromNode = workMessage.getSyncTimeStamp();
+
+                        Calendar cal = Calendar.getInstance();
+                        cal.add(Calendar.DAY_OF_MONTH, -1);
+                        latestTimeStampFromNode = cal.getTimeInMillis();
+
+                        ResultSet results = dao.getLatestRecords(latestTimeStampFromNode);
+
+                        for (Row r : results)
+                        {
+                            System.out.println("fileName "+r.getString("filename")+" timestamp "+r.getDouble("timestamp")+" seq_id "+r.getInt("seq_id"));
+                            Work.Task.Builder taskBuilder = Work.Task.newBuilder();
+                            taskBuilder.setTaskType(Work.Task.TaskType.SAVEDATATONODE);
+                            taskBuilder.setFilename(r.getString("filename"));
+//                            taskBuilder.setData(ByteString.copyFrom(r.getBytes("file").array()));
+                            taskBuilder.setSeriesId((long)r.getDouble("timestamp"));
+                            taskBuilder.setSeqId(r.getInt("seq_id"));
+
+                            Common.Header.Builder hb = Common.Header.newBuilder();
+                            hb.setNodeId(inboundWorkQueue.getState().getConf().getNodeId());
+                            hb.setDestination(-1);
+                            hb.setTime(System.currentTimeMillis());
+
+                            Work.WorkMessage.Builder wb = Work.WorkMessage.newBuilder();
+                            wb.setHeader(hb);
+                            wb.setTask(taskBuilder);
+
+                            wb.setSecret(1000l);
+
+                            //EdgeMonitor.sendMessage(ElectionHandler.getInstance().getLeaderNodeId(), wb.build());
+                            EdgeMonitor.broadcastMessage(wb.build());
+                        }
                     }
                 }
             } catch (InterruptedException ie) {
